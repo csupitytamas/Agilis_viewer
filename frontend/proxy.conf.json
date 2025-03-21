@@ -3,5 +3,15 @@
     "target": "https://dev.backend.demosystems.hu",
     "secure": false,
     "changeOrigin": true
+  },
+  "/presentation": {
+    "target": "https://slidemaker-backend.onrender.com",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/slide": {
+    "target": "https://slidemaker-backend.onrender.com",
+    "secure": false,
+    "changeOrigin": true
   }
 }
