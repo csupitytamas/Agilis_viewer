@@ -1,0 +1,7 @@
+{
+  "/api/**": {
+    "target": "https://dev.backend.demosystems.hu",
+    "secure": false,
+    "changeOrigin": true
+  }
+}
