@@ -21,6 +21,7 @@ export class PresentationListComponent implements OnInit {
   loadPresentations(): void {
     this.slideService.getPresentations().subscribe(response => {
         this.presentations = response.presentations;
+
         console.log('Megkapott presentation json:');
         console.log(this.presentations);
     });
