@@ -1,22 +1,23 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { PRESENTER_API_URL } from '../../../environments/api-config';
-import { Presentation } from '../../models/presentation.model';
+import {PRESENTER_API_URL, PROXY_API_URL} from '../../../environments/api-config';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SlideService {
-  private apiUrl = PRESENTER_API_URL + '/presentation';
+  //private apiUrl = PRESENTER_API_URL + '/presentation';
+  private proxyUrl = PROXY_API_URL + '/presentation';
 
   constructor(private http: HttpClient) {}
 
-  getPresentations(): Observable<{ success: boolean; presentations: Presentation[] }> {
-    return this.http.get<{ success: boolean; presentations: Presentation[] }>(`${this.apiUrl}/list`);
+  getPresentations(): Observable<any> {
+    //return this.http.get<any>(`${this.apiUrl}/list`)
+    return this.http.get<any>(`${this.proxyUrl}/list`);
   }
 
-  getPresentationById(id: string): Observable<{ success: boolean; presentation: Presentation }> {
-    return this.http.get<{ success: boolean; presentation: Presentation }>(`${this.apiUrl}/${id}`);
+  getPresentationById(id: string): Observable<any> {
+    return this.http.get<any>(`${this.proxyUrl}/${id}`);
   }
 }
