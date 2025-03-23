@@ -28,8 +28,8 @@
 
         - name: Build Docker image
           run: |
-            docker build -t git.norbif.hu/Midrastil/viewer:latest frontend
+            docker build -t git.norbif.hu/midrastil/viewer:latest frontend
 
         - name: Push Docker image
           run: |
-            docker push git.norbif.hu/Midrastil/viewer:latest
+            docker push git.norbif.hu/midrastil/viewer:latest
