@@ -12,6 +12,8 @@ RUN npm install
 
 COPY . .
 
+RUN sed -i 's/allowedHosts: \[\]/allowedHosts: \["viewer.norbif.hu"\]/' Frontend/vite.config.js
+
 EXPOSE 4200
 
 CMD ["ng", "serve", "--host", "0.0.0.0"]
