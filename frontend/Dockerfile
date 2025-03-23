@@ -1,18 +1,17 @@
-FROM node:23.5-alpine AS build
+FROM node:alpine AS build
 
-WORKDIR /home/node/app
+WORKDIR /app
 
-RUN chown -R node:node /home/node/app
+COPY package*.json ./
 
-USER node
+COPY tsconfig*.json ./
 
-COPY --chown=node:node package*.json ./
-COPY --chown=node:node tsconfig*.json ./
+RUN npm --verbose install -g @angular/cli
 
-RUN npm install --legacy-peer-deps
+RUN npm install
 
-COPY --chown=node:node . .
+COPY . .
 
-EXPOSE 8080
+EXPOSE 4200
 
-CMD ["node", "app.js"]
+CMD ["ng", "serve", "--host", "0.0.0.0"]
