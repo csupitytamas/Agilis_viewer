@@ -1,81 +1,99 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-
+const axios = require('axios');
 const app = express();
-const port = 3000;
+const PORT = 3000;
 
-app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Dummy állapot változók
-let presentationId = 1;
 let currentSlide = 0;
-let status = "stopped";
+let isRunning = false;
 
-// GET /status/:id
-app.get('/api/v1/display/status/:id', (req, res) => {
-    res.json({
-        success: true,
-        presentationId: parseInt(req.params.id),
-        currentSlide,
-        status
-    });
+// Controller API URL
+const CONTROLLER_URL = 'http://localhost:5000/api/v1';
+
+
+app.post('/:id/start', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const controllerResponse = await axios.post(`${CONTROLLER_URL}/${id}/start`);
+    isRunning = true;
+    currentSlide = 0;
+    console.log(`Start presentation ${id}`);
+    res.json(controllerResponse.data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to start presentation' });
+  }
 });
 
-// POST /command
-app.post('/api/v1/display/command', (req, res) => {
-    const { action, gotoSlide } = req.body;
 
-    switch(action) {
-        case "start":
-            status = "running";
-            currentSlide = 1;
-            break;
-        case "stop":
-            status = "stopped";
-            break;
-        case "next":
-            currentSlide++;
-            break;
-        case "previous":
-            if (currentSlide > 1) currentSlide--;
-            break;
-        case "goto":
-            if (gotoSlide !== undefined) currentSlide = gotoSlide;
-            break;
-        case "restart":
-            status = "running";
-            currentSlide = 1;
-            break;
-        default:
-            return res.status(400).json({ success: false, message: "Invalid action" });
+app.post('/:id/next', async (req, res) => {
+    const { id } = req.params;
+    if (!isRunning) return res.status(400).json({ error: 'Presentation not running' });
+  
+    try {
+      const controllerResponse = await axios.post(`${CONTROLLER_URL}/${id}/next`);
+      currentSlide = controllerResponse.data.currentSlide;
+      console.log(`Next slide: ${currentSlide}`);
+  
+      const slideContentResponse = await axios.post(`${CONTROLLER_URL}/${id}/slide-content`, {
+        slideNumber: currentSlide
+      });
+  
+      const slideContent = slideContentResponse.data.content;
+      console.log(`Slide Content received: ${slideContent}`);
+  
+      res.json({
+        ...controllerResponse.data,
+        slideContent
+      });
+  
+    } catch (err) {
+      console.error('Error:', err.message);
+      res.status(500).json({ error: 'Failed to move to next slide' });
     }
+  });
 
-    res.json({
-        success: true,
-        message: `Action ${action} performed`,
-        currentSlide
-    });
-});
 
-// POST /feedback
-app.post('/api/v1/display/feedback', (req, res) => {
-    console.log("Feedback received:", req.body);
-    res.json({ success: true });
-});
+app.post('/:id/previous', async (req, res) => {
+  const { id } = req.params;
+  if (!isRunning) return res.status(400).json({ error: 'Presentation not running' });
 
-// GET /current-slide/:id
-app.get('/api/v1/display/current-slide/:id', (req, res) => {
-    res.json({
-        success: true,
-        presentationId: parseInt(req.params.id),
-        currentSlide
-    });
+  try {
+    const controllerResponse = await axios.post(`${CONTROLLER_URL}/${id}/previous`);
+    currentSlide = controllerResponse.data.currentSlide;
+    console.log(`Previous slide: ${currentSlide}`);
+    res.json(controllerResponse.data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to move to previous slide' });
+  }
 });
 
 
+app.post('/:id/goto', async (req, res) => {
+  const { id } = req.params;
+  const { gotoSlide } = req.body;
+  if (!isRunning) return res.status(400).json({ error: 'Presentation not running' });
 
-app.listen(port, () => {
-    console.log(`Display backend listening at http://localhost:${port}`);
+  try {
+    const controllerResponse = await axios.post(`${CONTROLLER_URL}/${id}/goto`, { gotoSlide });
+    currentSlide = controllerResponse.data.currentSlide;
+    console.log(`Goto slide: ${currentSlide}`);
+    res.json(controllerResponse.data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to goto slide' });
+  }
 });
+
+
+app.post('/:id/stop', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const controllerResponse = await axios.post(`${CONTROLLER_URL}/${id}/stop`);
+    isRunning = false;
+    console.log(`Presentation stopped`);
+    res.json(controllerResponse.data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to stop presentation' });
+  }
+});
+
