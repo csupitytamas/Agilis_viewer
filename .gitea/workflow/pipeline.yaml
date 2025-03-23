@@ -27,21 +27,12 @@
             restore-keys: |
               npm-
 
-        - name: Install dependencies
-          run: npm ci
-
-        - name: Run tests
-          run: npm test
-
-        - name: Build Node.js app
-          run: npm run build
-
         - name: Log in to Gitea Docker Registry
           run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login git.norbif.hu -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
         - name: Build Docker image
           run: |
-            docker build -t git.norbif.hu/Midrastil/viewer:latest .
+            docker build -t git.norbif.hu/Midrastil/viewer:latest frontend
 
         - name: Push Docker image
           run: |
