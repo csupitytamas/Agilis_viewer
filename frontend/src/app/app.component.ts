@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import {ValtoComponent} from './components/valto/valto.component';
 import {NoProjectionComponent} from './components/no-projection/no-projection.component';
 import {PresentationListComponent} from './components/presentation-list/presentation-list.component';
+import {RouterOutlet} from '@angular/router';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-root',
@@ -11,9 +13,14 @@ import {PresentationListComponent} from './components/presentation-list/presenta
     ValtoComponent,
     NoProjectionComponent,
     PresentationListComponent,
+    RouterOutlet,
+    MatProgressSpinner
   ],
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+    title(title: any) {
+        throw new Error('Method not implemented.');
+    }
 
 }
