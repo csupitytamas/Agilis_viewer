@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> Viewer API Dokumentáció</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 20px;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 5px;
+      border-radius: 5px;
+    }
+    .endpoint {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .endpoint h2 {
+      margin-top: 0;
+    }
+    .endpoint p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+<h1> Viewer API Dokumentáció</h1>
+
+<!-- Start Presentation -->
+<div class="endpoint">
+  <h2>1. Prezentáció indítása</h2>
+  <p><strong>URL:</strong> <code>POST /:id/start</code></p>
+  <p><strong>Leírás:</strong> Elindít egy prezentációt a megadott azonosítóval.</p>
+  <p><strong>Paraméterek:</strong></p>
+  <ul>
+    <li><code>id</code> (URL paraméter) - A prezentáció azonosítója.</li>
+  </ul>
+  <p><strong>Válasz:</strong></p>
+  <ul>
+    <li>Sikeres válasz: <code>200 OK</code> + a prezentáció adatai.</li>
+    <li>Hiba esetén: <code>500 Internal Server Error</code> + hibaüzenet.</li>
+  </ul>
+</div>
+
+<!-- Next Slide -->
+<div class="endpoint">
+  <h2>2. Következő dia</h2>
+  <p><strong>URL:</strong> <code>POST /:id/next</code></p>
+  <p><strong>Leírás:</strong> Átvált a következő diára a prezentációban.</p>
+  <p><strong>Paraméterek:</strong></p>
+  <ul>
+    <li><code>id</code> (URL paraméter) - A prezentáció azonosítója.</li>
+  </ul>
+  <p><strong>Válasz:</strong></p>
+  <ul>
+    <li>Sikeres válasz: <code>200 OK</code> + az új dia adatai és tartalma.</li>
+    <li>Hiba esetén: <code>500 Internal Server Error</code> + hibaüzenet.</li>
+  </ul>
+</div>
+
+<!-- Previous Slide -->
+<div class="endpoint">
+  <h2>3. Előző dia</h2>
+  <p><strong>URL:</strong> <code>POST /:id/previous</code></p>
+  <p><strong>Leírás:</strong> Átvált az előző diára a prezentációban.</p>
+  <p><strong>Paraméterek:</strong></p>
+  <ul>
+    <li><code>id</code> (URL paraméter) - A prezentáció azonosítója.</li>
+  </ul>
+  <p><strong>Válasz:</strong></p>
+  <ul>
+    <li>Sikeres válasz: <code>200 OK</code> + az új dia adatai.</li>
+    <li>Hiba esetén: <code>500 Internal Server Error</code> + hibaüzenet.</li>
+  </ul>
+</div>
+
+<!-- Go to Slide -->
+<div class="endpoint">
+  <h2>4. Ugrás egy adott diára</h2>
+  <p><strong>URL:</strong> <code>POST /:id/goto</code></p>
+  <p><strong>Leírás:</strong> Átvált a megadott sorszámú diára.</p>
+  <p><strong>Paraméterek:</strong></p>
+  <ul>
+    <li><code>id</code> (URL paraméter) - A prezentáció azonosítója.</li>
+    <li><code>gotoSlide</code> (Body paraméter) - A dia sorszáma, amire ugrani szeretnénk.</li>
+  </ul>
+  <p><strong>Válasz:</strong></p>
+  <ul>
+    <li>Sikeres válasz: <code>200 OK</code> + az új dia adatai.</li>
+    <li>Hiba esetén: <code>500 Internal Server Error</code> + hibaüzenet.</li>
+  </ul>
+</div>
+
+<!-- Stop Presentation -->
+<div class="endpoint">
+  <h2>5. Prezentáció leállítása</h2>
+  <p><strong>URL:</strong> <code>POST /:id/stop</code></p>
+  <p><strong>Leírás:</strong> Leállítja a futó prezentációt.</p>
+  <p><strong>Paraméterek:</strong></p>
+  <ul>
+    <li><code>id</code> (URL paraméter) - A prezentáció azonosítója.</li>
+  </ul>
+  <p><strong>Válasz:</strong></p>
+  <ul>
+    <li>Sikeres válasz: <code>200 OK</code> + a leállítás megerősítése.</li>
+    <li>Hiba esetén: <code>500 Internal Server Error</code> + hibaüzenet.</li>
+  </ul>
+</div>
+
+</body>
+</html>
