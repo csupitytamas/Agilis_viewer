@@ -2,16 +2,19 @@ FROM node:23.5-alpine AS build
 
 WORKDIR /home/node/app
 
+RUN chown -R node:node /home/node/app
+
+USER node
+
 COPY --chown=node:node package*.json ./
 COPY --chown=node:node tsconfig*.json ./
 
+RUN apk add --no-cache python3 make g++
 
-RUN npm install
-
-USER node
+RUN npm install --legacy-peer-deps
 
 COPY --chown=node:node . .
 
 EXPOSE 8080
 
-CMD [ "node", "app.js" ]
+CMD ["node", "app.js"]
