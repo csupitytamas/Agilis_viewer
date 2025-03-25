@@ -2,11 +2,13 @@ FROM node:alpine AS build
 
 WORKDIR /app
 
-COPY package.json ./
+COPY package*.json ./
 
 COPY tsconfig.json ./
 
 RUN npm install
+
+RUN npm install -g @angular/cli
 
 COPY . .
 
