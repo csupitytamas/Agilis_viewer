@@ -2,9 +2,9 @@ FROM node:alpine AS build
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json ./
 
-COPY tsconfig*.json ./
+COPY tsconfig.json ./
 
 RUN npm --verbose install -g @angular/cli
 
@@ -12,8 +12,10 @@ RUN npm install
 
 COPY . .
 
-RUN sed -i 's/allowedHosts: \[\]/allowedHosts: \["viewer.norbif.hu"\]/' Frontend/vite.config.js
+RUN ng build --configuration=production
 
-EXPOSE 4200
+FROM nginx:latest
 
-CMD ["ng", "serve", "--host", "0.0.0.0"]
+COPY --from=build app/dist/valtogatos-app/browser /usr/share/nginx/html
+
+EXPOSE 80

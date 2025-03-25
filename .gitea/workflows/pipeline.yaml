@@ -10,26 +10,16 @@
         - name: Repository checkout
           uses: actions/checkout@v4
 
-        - name: Set up Node.js
-          uses: actions/setup-node@v3
-          with:
-            node-version: '20'
-
-        - name: Cache npm dependencies
-          uses: actions/cache@v4
-          with:
-            path: ~/.npm
-            key: npm-${{ hashFiles('**/package-lock.json') }}
-            restore-keys: |
-              npm-
-
         - name: Log in to Gitea Docker Registry
           run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login git.norbif.hu -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
         - name: Build Docker image
           run: |
-            docker build -t git.norbif.hu/midrastil/viewer:latest frontend
+            docker build -t git.norbif.hu/midrastil/viewer-frontend:latest frontend
+            docker build -t git.norbif.hu/midrastil/viewer-backend:latest comms
+            
 
         - name: Push Docker image
           run: |
-            docker push git.norbif.hu/midrastil/viewer:latest
+            docker push git.norbif.hu/midrastil/viewer-frontend:latest
+            docker push git.norbif.hu/midrastil/viewer-backend:latest

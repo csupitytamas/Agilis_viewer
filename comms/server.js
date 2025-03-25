@@ -74,7 +74,7 @@ app.post('/:id/goto', async (req, res) => {
   const { gotoSlide } = req.body;
   if (!isRunning) return res.status(400).json({ error: 'Presentation not running' });
 
-  try {
+    try {
     const controllerResponse = await axios.post(`${CONTROLLER_URL}/${id}/goto`, { gotoSlide });
     currentSlide = controllerResponse.data.currentSlide;
     console.log(`Goto slide: ${currentSlide}`);
@@ -97,3 +97,6 @@ app.post('/:id/stop', async (req, res) => {
   }
 });
 
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
