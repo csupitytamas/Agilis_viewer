@@ -6,8 +6,6 @@ COPY package.json ./
 
 COPY tsconfig.json ./
 
-RUN npm --verbose install -g @angular/cli
-
 RUN npm install
 
 COPY . .
