@@ -4,6 +4,7 @@ import {NoProjectionComponent} from './components/no-projection/no-projection.co
 import {PresentationListComponent} from './components/presentation-list/presentation-list.component';
 import {RouterOutlet} from '@angular/router';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {PageNumberComponent} from './components/page-number/page-number.component';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +15,7 @@ import {MatProgressSpinner} from '@angular/material/progress-spinner';
     NoProjectionComponent,
     PresentationListComponent,
     RouterOutlet,
+    PageNumberComponent,
     MatProgressSpinner
   ],
   styleUrls: ['./app.component.css']
