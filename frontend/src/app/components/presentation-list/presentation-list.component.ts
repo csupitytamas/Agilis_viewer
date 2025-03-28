@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import {Presentation} from '../../models/presentation.model';
-import {SlideService} from '../../services/slide/slide.service';
 import {PresenterService} from '../../services/presenter/presenter.service';
 import {SlidemakerService} from '../../services/slidemaker/slidemaker.service';
 
