@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {Presentation} from '../../models/presentation.model';
 import {SLIDEMAKER_PROXY_API_URL} from '../../../environments/api-config';
 
 @Injectable({

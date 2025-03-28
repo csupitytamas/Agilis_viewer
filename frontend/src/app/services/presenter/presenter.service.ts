@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import {PRESENTER_PROXY_API_URL} from '../../../environments/api-config';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 
@@ -7,7 +6,7 @@ import {Observable} from 'rxjs';
   providedIn: 'root'
 })
 export class PresenterService {
-  private proxyUrl = PRESENTER_PROXY_API_URL ;
+  private proxyUrl = '/api/v1' ;
 
   constructor(private http: HttpClient) {}
 
