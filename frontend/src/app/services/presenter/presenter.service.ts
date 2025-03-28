@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
+import {PRESENTER_PROXY_API_URL} from '../../../environments/api-config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PresenterService {
-  private proxyUrl = '/api/v1' ;
+  private proxyUrl = PRESENTER_PROXY_API_URL ;
 
   constructor(private http: HttpClient) {}
 
