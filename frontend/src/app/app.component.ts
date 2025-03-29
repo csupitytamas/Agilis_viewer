@@ -1,10 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {NoProjectionComponent} from './components/no-projection/no-projection.component';
 import {PresentationListComponent} from './components/presentation-list/presentation-list.component';
-import {NavigationEnd, Router, RouterOutlet} from '@angular/router';
+import {RouterOutlet} from '@angular/router';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {PageNumberComponent} from './components/page-number/page-number.component';
-import {ProjectionService} from './services/projection/projection.service';
+import {MainPageComponent} from './components/main-page/main-page.component';
 
 @Component({
   selector: 'app-root',
@@ -15,27 +15,16 @@ import {ProjectionService} from './services/projection/projection.service';
     PresentationListComponent,
     RouterOutlet,
     PageNumberComponent,
-    MatProgressSpinner
+    MatProgressSpinner,
+    MainPageComponent
   ],
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit{
-  constructor(private router: Router, private projectionService: ProjectionService) {}
+export class AppComponent{
+  constructor() {}
 
-  ngOnInit() {
-    this.projectionService.startPolling(1000);
-
-    this.projectionService.isProjection$.subscribe(value => {
-      if (value) {
-        this.router.navigate(['/projection']);
-      } else {
-        this.router.navigate(['/no-projection']);
-      }
-    });
+  title(title: any) {
+    throw new Error('Method not implemented.');
   }
-
-    title(title: any) {
-        throw new Error('Method not implemented.');
-    }
 
 }

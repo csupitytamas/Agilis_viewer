@@ -3,11 +3,14 @@ import { RouterModule, Routes } from '@angular/router';
 import { LoadingPageComponent } from './components/loading-page/loading-page.component';
 import {ProjectionComponent} from './components/projection/projection.component';
 import {NoProjectionComponent} from './components/no-projection/no-projection.component';
+import {MainPageComponent} from './components/main-page/main-page.component';
 export const routes: Routes = [
-  { path: 'loading', component: LoadingPageComponent },// A betöltő oldal route-ja
-  {path: 'projection', component: ProjectionComponent},
+  { path: '', component: MainPageComponent },
+  { path: 'loading', component: LoadingPageComponent },
+  { path: 'projection', component: ProjectionComponent},
   { path: 'no-projection', component: NoProjectionComponent },
-  //{ path: '', redirectTo: '/loading', pathMatch: 'full' } // Ha alapértelmezettnek ezt akarnénk
+  { path: '**', redirectTo: '' }
+
 ];
 
 @NgModule({
