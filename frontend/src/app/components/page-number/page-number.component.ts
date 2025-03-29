@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {MatIcon, MatIconModule} from '@angular/material/icon';
+import {MatIcon} from '@angular/material/icon';
+import {HttpClient} from '@angular/common/http';
+import {BACKEND_PROXY_API_URL} from '../../../environments/api-config';
+import {interval, switchMap} from 'rxjs';
 
 
 @Component({
@@ -10,7 +13,39 @@ import {MatIcon, MatIconModule} from '@angular/material/icon';
   templateUrl: './page-number.component.html',
   styleUrls: ['./page-number.component.css']
 })
-export class PageNumberComponent {
-  currentPage = 1;
+export class PageNumberComponent implements OnInit, OnDestroy{
+  currentPage: number = 0;
+  private pollingSubscription: any;
+  private readonly API_URL = BACKEND_PROXY_API_URL;
+
+  constructor(private http: HttpClient) {}
+
+  ngOnInit(): void {
+    this.startPolling(1000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.pollingSubscription) {
+      this.pollingSubscription.unsubscribe();
+    }
+  }
+
+  startPolling(intervalMs: number): void {
+    this.pollingSubscription = interval(intervalMs)
+      .pipe(
+        switchMap(() => this.http.get<{ currentSlide: number }>(`${this.API_URL}/current-slide`))
+      )
+      .subscribe(
+        (response) => {
+          if (response.currentSlide !== this.currentPage) {
+            this.currentPage = response.currentSlide;
+            console.log('Updated slide:', this.currentPage);
+          }
+        },
+        (error) => {
+          console.error('Error fetching current slide:', error);
+        }
+      );
+  }
 }
 

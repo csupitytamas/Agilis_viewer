@@ -15,6 +15,10 @@ app.get('/api/status', (req, res) => {
   res.json({ isRunning });
 });
 
+app.get('/api/current-slide', (req, res) => {
+    res.json({ currentSlide });
+});
+
 app.post('/api/:id/start', async (req, res) => {
   const { id } = req.params;
   try {

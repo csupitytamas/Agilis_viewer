@@ -16,6 +16,8 @@ RUN ng build --configuration=production
 
 FROM nginx:latest
 
+COPY nginx.conf /etc/nginx/nginx.conf
+
 COPY --from=build app/dist/valtogatos-app/browser /usr/share/nginx/html
 
 EXPOSE 80

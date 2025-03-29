@@ -15,11 +15,6 @@
     "changeOrigin": true
   },
   "/api/**": {
-    "target": "https://backend.viewer.norbif.hu",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/status": {
     "target": "http://localhost:3000",
     "secure": false,
     "changeOrigin": true
