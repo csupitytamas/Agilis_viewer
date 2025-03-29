@@ -14,15 +14,14 @@
     "secure": false,
     "changeOrigin": true
   },
-  "/api/*": {
-    "target": "http://localhost:3000",
+  "/api/**": {
+    "target": "https://backend.viewer.norbif.hu",
     "secure": false,
     "changeOrigin": true
   },
-  "/api/**": {
-    "target": "https://backend.viewer.norbif.hu/",
+  "/api/status": {
+    "target": "http://localhost:3000",
     "secure": false,
     "changeOrigin": true
   }
-
 }
