@@ -11,8 +11,11 @@ let isRunning = false;
 // Controller API URL
 const CONTROLLER_URL = 'http://localhost:5000/api/v1';
 
+app.get('/api/status', (req, res) => {
+  res.json({ isRunning });
+});
 
-app.post('/:id/start', async (req, res) => {
+app.post('/api/:id/start', async (req, res) => {
   const { id } = req.params;
   try {
     const controllerResponse = await axios.post(`${CONTROLLER_URL}/${id}/start`);
@@ -21,12 +24,12 @@ app.post('/:id/start', async (req, res) => {
     console.log(`Start presentation ${id}`);
     res.json(controllerResponse.data);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to start presentation' });
+    res.status(500).json({ error: 'Failed to start presentation'});
   }
 });
 
 
-app.post('/:id/next', async (req, res) => {
+app.post('/api/:id/next', async (req, res) => {
     const { id } = req.params;
     if (!isRunning) return res.status(400).json({ error: 'Presentation not running' });
   
@@ -54,7 +57,7 @@ app.post('/:id/next', async (req, res) => {
   });
 
 
-app.post('/:id/previous', async (req, res) => {
+app.post('/api/:id/previous', async (req, res) => {
   const { id } = req.params;
   if (!isRunning) return res.status(400).json({ error: 'Presentation not running' });
 
@@ -69,7 +72,7 @@ app.post('/:id/previous', async (req, res) => {
 });
 
 
-app.post('/:id/goto', async (req, res) => {
+app.post('/api/:id/goto', async (req, res) => {
   const { id } = req.params;
   const { gotoSlide } = req.body;
   if (!isRunning) return res.status(400).json({ error: 'Presentation not running' });
@@ -85,7 +88,7 @@ app.post('/:id/goto', async (req, res) => {
 });
 
 
-app.post('/:id/stop', async (req, res) => {
+app.post('/api/:id/stop', async (req, res) => {
   const { id } = req.params;
   try {
     const controllerResponse = await axios.post(`${CONTROLLER_URL}/${id}/stop`);
