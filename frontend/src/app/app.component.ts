@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {NoProjectionComponent} from './components/no-projection/no-projection.component';
 import {PresentationListComponent} from './components/presentation-list/presentation-list.component';
 import {RouterOutlet} from '@angular/router';
