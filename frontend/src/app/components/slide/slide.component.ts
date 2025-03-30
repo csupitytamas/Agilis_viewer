@@ -58,8 +58,8 @@ export class SlideComponent implements OnInit {
     const elem = document.createElement("div");
     elem.classList.add("widget");
 
-    elem.style.left = `${widget.positionX}%`;
-    elem.style.top = `${widget.positionY}%`;
+    elem.style.marginLeft = `${widget.positionX}%`;
+    elem.style.marginTop = `${widget.positionY}%`;
     elem.style.width = `${widget.width}%`;
     elem.style.height = `${widget.height}%`;
 
