@@ -11,7 +11,7 @@ body, html {
   position: relative;
   width: 100vw;
   height: 100vh;
-  background-color: black;
+  background-color: #ffffff;
   background-size: cover;
   background-position: center;
 }
@@ -24,7 +24,7 @@ body, html {
 
 /* TextBox widget */
 .textbox {
-  color: white;
+  color: #000000;
   font-family: sans-serif;
   word-wrap: break-word;
   overflow: hidden;
