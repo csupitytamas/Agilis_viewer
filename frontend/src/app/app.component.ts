@@ -16,7 +16,7 @@ import {MainPageComponent} from './components/main-page/main-page.component';
     RouterOutlet,
     PageNumberComponent,
     MatProgressSpinner,
-    MainPageComponent
+    MainPageComponent,
   ],
   styleUrls: ['./app.component.css']
 })

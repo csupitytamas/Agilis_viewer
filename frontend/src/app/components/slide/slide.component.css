@@ -1,0 +1,31 @@
+/* Teljes képernyő, margó nélkül */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Slide konténer */
+.slide {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Alap widget stílus */
+.widget {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+/* TextBox widget */
+.textbox {
+  color: white;
+  font-family: sans-serif;
+  word-wrap: break-word;
+  overflow: hidden;
+}
