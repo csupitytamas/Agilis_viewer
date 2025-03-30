@@ -1,24 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-
-// Widget interfész
-interface Widget {
-  id: string;
-  positionX: number;
-  positionY: number;
-  width: number;
-  height: number;
-  type: string;
-  text?: string;
-  fontSize?: number;
-}
+import {Widget} from '../../models/widget.model';
+import {Slide} from '../../models/slide.model';
+import {ProjectionService} from '../../services/projection/projection.service';
 
 // Slide interfész
-interface Slide {
-  id: string;
-  backgroundPath: string;
-  pageNumber: number;
-  widgets: Widget[];
-}
+
 
 @Component({
   selector: 'app-slide',
@@ -27,29 +13,18 @@ interface Slide {
   styleUrls: ['./slide.component.css']
 })
 export class SlideComponent implements OnInit {
-
-  // A JSON adat közvetlenül itt van, nem külső forrásból
-  slideData: Slide = {
-    id: "ed9659b5-f83f-41af-8886-75a694ea38f7",
+  private slideData : Slide = {
+    id: "",
     backgroundPath: "None",
-    pageNumber: 2,
-    widgets: [
-      {
-        id: "df40825c-a676-4ffb-9cfd-1540354fa0c2",
-        positionX: 40,
-        positionY: 50,
-        width: 30,
-        height: 20,
-        type: "TextBox",
-        text: "Ez csak egy próba szöveg",
-        fontSize: 11
-      }
-    ]
+    pageNumber: 0,
+    widgets: []
   };
 
-  constructor() {}
+
+  constructor(private projectionService: ProjectionService) {}
 
   ngOnInit(): void {
+    this.slideData = this.projectionService.getSlideData();
     this.renderSlide(); // Azonnali renderelés indítása a komponens betöltésekor
   }
 
