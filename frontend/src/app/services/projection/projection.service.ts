@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, interval, switchMap} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {BACKEND_PROXY_API_URL} from '../../../environments/api-config';
+import {BACKEND_API_URL, BACKEND_HOST_API_URL, BASE_URL} from '../../../environments/api-config';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +9,7 @@ import {BACKEND_PROXY_API_URL} from '../../../environments/api-config';
 export class ProjectionService {
   private isProjectionSubject = new BehaviorSubject<boolean>(false);
   isProjection$ = this.isProjectionSubject.asObservable();
-  private API_URL = BACKEND_PROXY_API_URL;
+  private API_URL = BASE_URL.includes('localhost') ? BACKEND_API_URL : BACKEND_HOST_API_URL;
 
   constructor(private http: HttpClient) {}
 

@@ -1,9 +1,26 @@
 const express = require('express');
 const axios = require('axios');
 const app = express();
+const cors = require('cors');
 const PORT = 3000;
 
 app.use(express.json());
+
+const allowedOrigins = ['localhost:4200', 'https://viewer.norbif.hu/'];
+app.use(cors({
+  origin: function(origin, callback){
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+
+}));
 
 let currentSlide = 0;
 let isRunning = false;

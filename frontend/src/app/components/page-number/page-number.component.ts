@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {MatIcon} from '@angular/material/icon';
 import {HttpClient} from '@angular/common/http';
-import {BACKEND_PROXY_API_URL} from '../../../environments/api-config';
+import {BACKEND_API_URL, BACKEND_HOST_API_URL, BASE_URL} from '../../../environments/api-config';
 import {interval, switchMap} from 'rxjs';
 
 
@@ -16,7 +16,7 @@ import {interval, switchMap} from 'rxjs';
 export class PageNumberComponent implements OnInit, OnDestroy{
   currentPage: number = 0;
   private pollingSubscription: any;
-  private readonly API_URL = BACKEND_PROXY_API_URL;
+  private readonly API_URL = BASE_URL.includes('localhost') ? BACKEND_API_URL : BACKEND_HOST_API_URL;
 
   constructor(private http: HttpClient) {}
 
