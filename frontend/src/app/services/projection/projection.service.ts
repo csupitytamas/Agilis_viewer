@@ -22,11 +22,13 @@ export class ProjectionService {
   }
 
   startPolling(intervalMs: number) {
+    /*
     interval(intervalMs)
       .pipe(switchMap(() => this.http.get<{ isRunning: boolean }>(`${this.API_URL}/status`)))
       .subscribe(response => {
         console.log('Projection status:', response.isRunning);
         this.setProjection(response.isRunning);
       });
+     */
   }
 }

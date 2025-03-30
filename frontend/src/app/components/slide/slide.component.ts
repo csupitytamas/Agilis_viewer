@@ -23,6 +23,7 @@ interface Slide {
 @Component({
   selector: 'app-slide',
   templateUrl: './slide.component.html',
+  standalone: true,
   styleUrls: ['./slide.component.css']
 })
 export class SlideComponent implements OnInit {
