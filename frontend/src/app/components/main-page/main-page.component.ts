@@ -16,6 +16,7 @@ export class MainPageComponent implements OnInit {
     this.projectionService.startPolling(1000);
 
     this.projectionService.isProjection$.subscribe(value => {
+      console.log(value);
       if (value) {
         this.router.navigate(['/projection']);
       } else {
