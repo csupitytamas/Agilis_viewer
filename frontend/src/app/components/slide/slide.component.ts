@@ -39,8 +39,8 @@ export class SlideComponent implements OnInit, AfterViewInit {
         id: "df40825c-a676-4ffb-9cfd-1540354fa0c2",
         positionX: 40,
         positionY: 50,
-        width: 30,
-        height: 20,
+        width: 10,
+        height: 10,
         type: "TextBox",
         text: "Ez egy próba szöveg",
         fontSize: 11,
@@ -56,6 +56,16 @@ export class SlideComponent implements OnInit, AfterViewInit {
         fontSize: 18,
       },
       {
+        id: "c3d4e5f6-7890-1234-cdef-34567890abcd",
+        positionX: 50,
+        positionY: 85,
+        width: 50,
+        height: 30,
+        type: "TextBox",
+        text: "Nagy méretű szöveg",
+        fontSize: 24,
+      },
+      {
         id: "b2c3d4e5-f678-9012-bcde-f234567890ab",
         positionX: 60,
         positionY: 70,
@@ -64,16 +74,6 @@ export class SlideComponent implements OnInit, AfterViewInit {
         type: "TextBox",
         text: "Dőlt betűs szöveg",
         fontSize: 14,
-      },
-      {
-        id: "c3d4e5f6-7890-1234-cdef-34567890abcd",
-        positionX: 30,
-        positionY: 85,
-        width: 50,
-        height: 30,
-        type: "TextBox",
-        text: "Nagy méretű szöveg",
-        fontSize: 24,
       }
     ]
   };
@@ -156,4 +156,32 @@ export class SlideComponent implements OnInit, AfterViewInit {
   onResize(): void {
     this.adjustSlideContainer();
   }
+
+  isFullscreen = false;
+
+  toggleFullscreen(): void {
+    const blackBars = document.querySelector('.black-bars') as HTMLElement;
+
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => {
+        blackBars.style.backgroundColor = "black";
+        this.isFullscreen = true;
+      }).catch((err: { message: any; }) => {
+        console.error(`Fullscreen hiba: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+      this.isFullscreen = false;
+    }
+  }
+
+  @HostListener('document:fullscreenchange', [])
+  onFullscreenChange(): void {
+    const blackBars = document.querySelector('.black-bars') as HTMLElement;
+    if (!document.fullscreenElement) {
+      blackBars.style.backgroundColor = "#aaa";
+    }
+  }
+
+
 }

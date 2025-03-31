@@ -1,3 +1,7 @@
 <div class="black-bars">
   <div #slideContainer class="slide-container"></div>
 </div>
+
+<button class="fullscreen-button" (click)="toggleFullscreen()">
+  <i [class]="isFullscreen ? 'fa-solid fa-compress' : 'fa-solid fa-expand'"></i>
+</button>
