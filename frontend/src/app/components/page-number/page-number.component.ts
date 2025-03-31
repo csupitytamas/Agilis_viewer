@@ -4,6 +4,7 @@ import {MatIcon} from '@angular/material/icon';
 import {HttpClient} from '@angular/common/http';
 import {BACKEND_API_URL, BACKEND_HOST_API_URL, BASE_URL} from '../../../environments/api-config';
 import {interval, switchMap} from 'rxjs';
+import {ProjectionService} from '../../services/projection/projection.service';
 
 
 @Component({
@@ -18,18 +19,29 @@ export class PageNumberComponent implements OnInit, OnDestroy{
   private pollingSubscription: any;
   private readonly API_URL = BASE_URL.includes('localhost') ? BACKEND_API_URL : BACKEND_HOST_API_URL;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private projectionService: ProjectionService
+  ) {}
 
   ngOnInit(): void {
+    this.projectionService.pageNumber$.subscribe((pageNumber) => {
+      this.currentPage = pageNumber;
+    });
+    /*
     this.startPolling(1000);
+     */
   }
 
   ngOnDestroy(): void {
+    /*
     if (this.pollingSubscription) {
       this.pollingSubscription.unsubscribe();
     }
+     */
   }
 
+  /*
   startPolling(intervalMs: number): void {
     this.pollingSubscription = interval(intervalMs)
       .pipe(
@@ -47,5 +59,6 @@ export class PageNumberComponent implements OnInit, OnDestroy{
         }
       );
   }
+   */
 }
 
