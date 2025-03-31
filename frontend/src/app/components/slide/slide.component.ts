@@ -28,9 +28,8 @@ interface Slide {
 })
 export class SlideComponent implements OnInit, AfterViewInit {
 
-  @ViewChild('slideContainer', { static: false }) slideContainer!: ElementRef; // Deklaráljuk a slideContainer-t
+  @ViewChild('slideContainer', { static: false }) slideContainer!: ElementRef;
 
-  // A JSON adat közvetlenül itt van, nem külső forrásból
   slideData: Slide = {
     id: "ed9659b5-f83f-41af-8886-75a694ea38f7",
     backgroundPath: "None",
@@ -43,62 +42,87 @@ export class SlideComponent implements OnInit, AfterViewInit {
         width: 30,
         height: 20,
         type: "TextBox",
-        text: "Ebfgddddz csak egy próba szöveg",
-        fontSize: 11
+        text: "Ez egy próba szöveg",
+        fontSize: 11,
+      },
+      {
+        id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        positionX: 10,
+        positionY: 20,
+        width: 40,
+        height: 25,
+        type: "TextBox",
+        text: "Kiemelt szöveg",
+        fontSize: 18,
+      },
+      {
+        id: "b2c3d4e5-f678-9012-bcde-f234567890ab",
+        positionX: 60,
+        positionY: 70,
+        width: 20,
+        height: 15,
+        type: "TextBox",
+        text: "Dőlt betűs szöveg",
+        fontSize: 14,
+      },
+      {
+        id: "c3d4e5f6-7890-1234-cdef-34567890abcd",
+        positionX: 30,
+        positionY: 85,
+        width: 50,
+        height: 30,
+        type: "TextBox",
+        text: "Nagy méretű szöveg",
+        fontSize: 24,
       }
     ]
   };
 
   constructor() {}
 
-  ngOnInit(): void {
-    // Itt nem érhető el a slideContainer
-  }
+  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    this.renderSlide(); // Azonnali renderelés indítása a komponens betöltésekor
+    this.renderSlide();
     this.adjustSlideContainer();
   }
 
-  // Widget DOM elem létrehozása
+  calculateFontSize(widgetFontSize: number, containerWidth: number): number {
+    const baseWidth = 1920; // Alap szélesség
+    return (widgetFontSize * containerWidth) / baseWidth *1.5;
+  }
+
   createWidget(widget: Widget): HTMLElement {
-    const elem: HTMLElement = document.createElement("div"); // Deklaráljuk az elem-et
+    const elem: HTMLElement = document.createElement("div");
     elem.classList.add("widget");
 
+    elem.style.position = "absolute";
     elem.style.left = `${widget.positionX}%`;
     elem.style.top = `${widget.positionY}%`;
     elem.style.width = `${widget.width}%`;
     elem.style.height = `${widget.height}%`;
 
-    switch (widget.type) {
-      case "TextBox":
-        elem.classList.add("textbox");
-        elem.textContent = widget.text || "";
-        elem.style.fontSize = `${widget.fontSize ?? 12}pt`;
-        break;
-      default:
-        console.warn("Ismeretlen widget típus:", widget.type);
-        break;
+    if (widget.type === "TextBox") {
+      elem.classList.add("textbox");
+      elem.textContent = widget.text || "";
+      const containerWidth = this.slideContainer.nativeElement.clientWidth;
+      elem.style.fontSize = `${this.calculateFontSize(widget.fontSize ?? 12, containerWidth)}px`;
     }
 
     return elem;
   }
 
-  // Slide renderelése
   renderSlide(): void {
-    if (!this.slideContainer) return; // Ellenőrizzük, hogy a slideContainer létezik-e
-    const container: HTMLElement = this.slideContainer.nativeElement; // Deklaráljuk a container-t
+    if (!this.slideContainer) return;
+    const container: HTMLElement = this.slideContainer.nativeElement;
 
-    container.innerHTML = ""; // előző slide törlése
-
-    if (this.slideData.backgroundPath && this.slideData.backgroundPath !== "None") {
+    container.innerHTML = "";
+    if (this.slideData.backgroundPath !== "None") {
       container.style.backgroundImage = `url(${this.slideData.backgroundPath})`;
-    } else {
-      container.style.backgroundImage = "";
     }
 
     this.slideData.widgets.forEach((widget) => {
-      const elem: HTMLElement = this.createWidget(widget); // Deklaráljuk az elem-et
+      const elem: HTMLElement = this.createWidget(widget);
       container.appendChild(elem);
     });
   }
@@ -114,22 +138,22 @@ export class SlideComponent implements OnInit, AfterViewInit {
     let slideWidth: number, slideHeight: number;
 
     if (windowWidth / windowHeight > aspectRatio) {
-      // Az ablak túl széles
       slideHeight = windowHeight;
       slideWidth = windowHeight * aspectRatio;
     } else {
-      // Az ablak túl magas
       slideWidth = windowWidth;
       slideHeight = windowWidth / aspectRatio;
     }
 
     container.style.width = `${slideWidth}px`;
     container.style.height = `${slideHeight}px`;
+
+    // Újraszámoljuk a betűméretet
+    this.renderSlide();
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: any): void {
+  onResize(): void {
     this.adjustSlideContainer();
   }
-
 }
