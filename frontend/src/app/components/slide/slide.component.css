@@ -52,8 +52,10 @@
   opacity: 0.5;
 }
 
-.fullscreen-button:hover {
-  background-color: #f0f0f0;
-  transform: scale(1.1);
-  opacity: 1;
+@media (hover: hover) {
+  .fullscreen-button:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.1);
+    opacity: 1;
+  }
 }
