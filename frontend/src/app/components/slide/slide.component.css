@@ -1,31 +1,24 @@
-/* Teljes képernyő, margó nélkül */
-body, html {
-  margin: 0;
-  padding: 0;
+.black-bars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
-  overflow: hidden;
+  background-color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Slide konténer */
-.slide {
+.slide-container {
+  background-color: white;
   position: relative;
-  width: 100vw;
-  height: 100vh;
-  background-color: #ffffff;
-  background-size: cover;
-  background-position: center;
 }
 
-/* Alap widget stílus */
 .widget {
   position: absolute;
-  box-sizing: border-box;
 }
 
-/* TextBox widget */
 .textbox {
-  color: #000000;
-  font-family: sans-serif;
-  word-wrap: break-word;
-  overflow: hidden;
+  white-space: pre-wrap;
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ElementRef, ViewChild, AfterViewInit, HostListener} from '@angular/core';
 
 // Widget interfész
 interface Widget {
@@ -26,7 +26,9 @@ interface Slide {
   standalone: true,
   styleUrls: ['./slide.component.css']
 })
-export class SlideComponent implements OnInit {
+export class SlideComponent implements OnInit, AfterViewInit {
+
+  @ViewChild('slideContainer', { static: false }) slideContainer!: ElementRef; // Deklaráljuk a slideContainer-t
 
   // A JSON adat közvetlenül itt van, nem külső forrásból
   slideData: Slide = {
@@ -41,7 +43,7 @@ export class SlideComponent implements OnInit {
         width: 30,
         height: 20,
         type: "TextBox",
-        text: "Ez csak egy próba szöveg",
+        text: "Ebfgddddz csak egy próba szöveg",
         fontSize: 11
       }
     ]
@@ -50,12 +52,17 @@ export class SlideComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {
+    // Itt nem érhető el a slideContainer
+  }
+
+  ngAfterViewInit(): void {
     this.renderSlide(); // Azonnali renderelés indítása a komponens betöltésekor
+    this.adjustSlideContainer();
   }
 
   // Widget DOM elem létrehozása
   createWidget(widget: Widget): HTMLElement {
-    const elem = document.createElement("div");
+    const elem: HTMLElement = document.createElement("div"); // Deklaráljuk az elem-et
     elem.classList.add("widget");
 
     elem.style.left = `${widget.positionX}%`;
@@ -79,8 +86,8 @@ export class SlideComponent implements OnInit {
 
   // Slide renderelése
   renderSlide(): void {
-    const container = document.getElementById("slide");
-    if (!container) return;
+    if (!this.slideContainer) return; // Ellenőrizzük, hogy a slideContainer létezik-e
+    const container: HTMLElement = this.slideContainer.nativeElement; // Deklaráljuk a container-t
 
     container.innerHTML = ""; // előző slide törlése
 
@@ -91,8 +98,38 @@ export class SlideComponent implements OnInit {
     }
 
     this.slideData.widgets.forEach((widget) => {
-      const elem = this.createWidget(widget);
+      const elem: HTMLElement = this.createWidget(widget); // Deklaráljuk az elem-et
       container.appendChild(elem);
     });
   }
+
+  adjustSlideContainer(): void {
+    if (!this.slideContainer) return;
+    const container: HTMLElement = this.slideContainer.nativeElement;
+
+    const windowWidth: number = window.innerWidth;
+    const windowHeight: number = window.innerHeight;
+    const aspectRatio: number = 16 / 9;
+
+    let slideWidth: number, slideHeight: number;
+
+    if (windowWidth / windowHeight > aspectRatio) {
+      // Az ablak túl széles
+      slideHeight = windowHeight;
+      slideWidth = windowHeight * aspectRatio;
+    } else {
+      // Az ablak túl magas
+      slideWidth = windowWidth;
+      slideHeight = windowWidth / aspectRatio;
+    }
+
+    container.style.width = `${slideWidth}px`;
+    container.style.height = `${slideHeight}px`;
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any): void {
+    this.adjustSlideContainer();
+  }
+
 }
