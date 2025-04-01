@@ -5,7 +5,7 @@ body, html {
 }
 
 .no-projection-wrapper {
-  background-color: #000000;
+  background-color: #ffffff;
   height: 100vh;
   width: 100vw;
   display: flex;
@@ -23,9 +23,9 @@ body, html {
 .no-projection-message {
   text-align: center;
   font-size: 2em;
-  color: #ffffff;
+  color: #000000;
   padding: 40px 60px;
-  background: rgb(0, 0, 0);
+  background: rgb(255, 255, 255);
   border-radius: 20px;
   box-shadow: 0 0 30px rgb(0, 0, 0);
   border: 2px solid rgb(255, 255, 255);
@@ -41,7 +41,7 @@ body, html {
 .no-projection-message p {
   margin: 25px 0 0 0;
   font-weight: 600;
-  text-shadow: 0 0 10px rgb(255, 255, 255);
+  text-shadow: 0 0 10px rgb(0, 0, 0);
   position: relative;
   z-index: 1;
 }
