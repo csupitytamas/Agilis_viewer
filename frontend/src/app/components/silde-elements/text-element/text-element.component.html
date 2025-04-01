@@ -1,0 +1,13 @@
+<div
+  class="text-element"
+  [ngStyle]="{
+    position: 'absolute',
+    top: widget?.positionY + '%',
+    left: widget?.positionX + '%',
+    width: widget?.width + '%',
+    height: widget?.height + '%',
+    fontSize: fontSizePx
+  }"
+>
+  {{ widget?.text }}
+</div>
