@@ -2,8 +2,8 @@
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: rgba(33, 33, 33, 0.85);
-  color: white;
+  background: rgb(0, 0, 0);
+  color: #ffffff;
   padding: 10px 16px;
   border-radius: 12px;
   display: flex;
