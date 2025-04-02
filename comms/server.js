@@ -21,105 +21,126 @@ app.use(cors({
   }
 
 }));
-
+let currentSlideData = null;
 let currentSlide = 0;
 let isRunning = false;
 
 // Controller API URL
-const CONTROLLER_URL = 'http://localhost:5000/api/v1';
+const CONTROLLER_URL = 'https://viewer.norbif.hu/api/v1';
 
 app.get('/api/status', (req, res) => {
   res.json({ isRunning });
 });
 
 app.get('/api/current-slide', (req, res) => {
-    res.json({ currentSlide });
-});
-
-app.post('/api/:id/start', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const controllerResponse = await axios.post(`${CONTROLLER_URL}/${id}/start`);
-    isRunning = true;
-    currentSlide = 0;
-    console.log(`Start presentation ${id}`);
-    res.json(controllerResponse.data);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to start presentation'});
+  if (!isRunning || !currentSlideData) {
+    return res.status(200).json({ running: false, slideNumber: null });
   }
-});
 
-
-app.post('/api/:id/next', async (req, res) => {
-    const { id } = req.params;
-    if (!isRunning) return res.status(400).json({ error: 'Presentation not running' });
-  
-    try {
-      const controllerResponse = await axios.post(`${CONTROLLER_URL}/${id}/next`);
-      currentSlide = controllerResponse.data.currentSlide;
-      console.log(`Next slide: ${currentSlide}`);
-  
-      const slideContentResponse = await axios.post(`${CONTROLLER_URL}/${id}/slide-content`, {
-        slideNumber: currentSlide
-      });
-  
-      const slideContent = slideContentResponse.data.content;
-      console.log(`Slide Content received: ${slideContent}`);
-  
-      res.json({
-        ...controllerResponse.data,
-        slideContent
-      });
-  
-    } catch (err) {
-      console.error('Error:', err.message);
-      res.status(500).json({ error: 'Failed to move to next slide' });
-    }
+  res.json({
+    running: true,
+    slideNumber: currentSlideData.pageNumber || null
   });
-
-
-app.post('/api/:id/previous', async (req, res) => {
-  const { id } = req.params;
-  if (!isRunning) return res.status(400).json({ error: 'Presentation not running' });
-
-  try {
-    const controllerResponse = await axios.post(`${CONTROLLER_URL}/${id}/previous`);
-    currentSlide = controllerResponse.data.currentSlide;
-    console.log(`Previous slide: ${currentSlide}`);
-    res.json(controllerResponse.data);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to move to previous slide' });
-  }
 });
 
 
-app.post('/api/:id/goto', async (req, res) => {
-  const { id } = req.params;
-  const { gotoSlide } = req.body;
-  if (!isRunning) return res.status(400).json({ error: 'Presentation not running' });
 
-    try {
-    const controllerResponse = await axios.post(`${CONTROLLER_URL}/${id}/goto`, { gotoSlide });
-    currentSlide = controllerResponse.data.currentSlide;
-    console.log(`Goto slide: ${currentSlide}`);
-    res.json(controllerResponse.data);
+// Hibakezelés
+function respondError(res, err, status = 500) {
+  console.error('Hiba:', err);
+  return res.status(status).json({ success: false, error: err.message || err });
+}
+
+// Start
+app.post('/:id/start', (req, res) => {
+  try {
+    const { slide } = req.body;
+
+    if (!slide) throw new Error('Missing slide data in start request');
+
+    isRunning = true;
+    currentSlideData = slide;
+    console.log('START received');
+    res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to goto slide' });
+    respondError(res, err);
   }
 });
 
-
-app.post('/api/:id/stop', async (req, res) => {
-  const { id } = req.params;
+// Stop
+app.post('/:id/stop', (req, res) => {
   try {
-    const controllerResponse = await axios.post(`${CONTROLLER_URL}/${id}/stop`);
     isRunning = false;
-    console.log(`Presentation stopped`);
-    res.json(controllerResponse.data);
+    currentSlideData = null;
+    console.log('STOP received');
+    res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to stop presentation' });
+    respondError(res, err);
   }
 });
+
+// Next
+app.post('/:id/next', (req, res) => {
+  try {
+    const { slide } = req.body;
+
+    if (!slide) throw new Error('Missing slide data in next request');
+
+    currentSlideData = slide;
+    console.log('NEXT received');
+    res.json({ success: true });
+  } catch (err) {
+    respondError(res, err);
+  }
+});
+
+// Previous
+app.post('/:id/previous', (req, res) => {
+  try {
+    const { slide } = req.body;
+
+    if (!slide) throw new Error('Missing slide data in previous request');
+
+    currentSlideData = slide;
+    console.log('PREVIOUS received');
+    res.json({ success: true });
+  } catch (err) {
+    respondError(res, err);
+  }
+});
+
+// Goto
+app.post('/:id/goto', (req, res) => {
+  try {
+    const { gotoSlide, slide } = req.body;
+
+    if (gotoSlide === undefined) throw new Error('Missing gotoSlide number');
+    if (!slide) throw new Error('Missing slide data in goto request');
+
+    currentSlideData = slide;
+    console.log(`GOTO received to slide ${gotoSlide}`);
+    res.json({ success: true });
+  } catch (err) {
+    respondError(res, err);
+  }
+});
+
+// Restart
+app.post('/:id/restart', (req, res) => {
+  try {
+    const { slide } = req.body;
+
+    if (!slide) throw new Error('Missing slide data in restart request');
+
+    isRunning = true;
+    currentSlideData = slide;
+    console.log('RESTART received');
+    res.json({ success: true });
+  } catch (err) {
+    respondError(res, err);
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
