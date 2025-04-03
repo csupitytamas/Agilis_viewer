@@ -16,7 +16,6 @@ app.use((req, res, next) => {
 
 app.get("/api/waitlists", async (req, res) => {
   try {
-    //TODO: IMPLEMENT THIS
     res.json({
       waitlists: [
       ],
@@ -82,17 +81,27 @@ app.get("/api/:id/current-slide", async (req, res) => {
             if (
                 presentation.content &&
                 presentation.content.slides &&
-                presentation.content.slides.length > currentSlideNumber
+                presentation.content.slides.length > 0
             ) {
-              const slideData = presentation.content.slides[currentSlideNumber]
+              const slideData = presentation.content.slides[currentSlideNumber];
 
-              console.log(`Returning slide ${currentSlideNumber} for waitlist ${waitlistId}`)
-              res.json({
-                running: true,
-                slideNumber: currentSlideNumber,
-                slideData,
-              })
-              return
+              if (slideData) {
+                console.log(`Found slide with pageNumber ${currentSlideNumber} for waitlist ${waitlistId}`)
+                res.json({
+                  running: true,
+                  slideNumber: currentSlideNumber,
+                  slideData,
+                })
+                return
+              } else {
+                const fallbackSlide = presentation.content.slides[0];
+                res.json({
+                  running: true,
+                  slideNumber: currentSlideNumber,
+                  slideData: fallbackSlide,
+                })
+                return
+              }
             }
           }
         } catch (presentationError) {
@@ -101,6 +110,27 @@ app.get("/api/:id/current-slide", async (req, res) => {
       }
 
       console.log(`No slide content available for waitlist ${waitlistId}, creating placeholder`)
+      res.json({
+        running: true,
+        slideNumber: currentSlideNumber,
+        slideData: {
+          id: `slide-${currentSlideNumber}`,
+          backgroundPath: "None",
+          pageNumber: currentSlideNumber,
+          widgets: [
+            {
+              id: `widget-${currentSlideNumber}-1`,
+              positionX: 40,
+              positionY: 40,
+              width: 50,
+              height: 20,
+              type: "TextBox",
+              text: `Slide ${currentSlideNumber} - ${waitlist.presentation.title || "Presentation"}`,
+              fontSize: 24,
+            },
+          ],
+        },
+      })
     } else {
       console.log(`Waitlist ${waitlistId} not running or not found`)
       res.json({ running: false, slideNumber: null })
@@ -137,4 +167,3 @@ app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`)
   console.log(`API is available at http://localhost:${PORT}/api`)
 })
-
