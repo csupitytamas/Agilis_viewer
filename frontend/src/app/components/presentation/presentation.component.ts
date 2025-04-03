@@ -5,15 +5,15 @@ import { Subscription } from "rxjs"
 import { PresentationService } from "../../services/presentation/presentation.service"
 import { SlideComponent } from "../slide/slide.component"
 import { PageNumberComponent } from "../page-number/page-number.component"
-import { NoProjectionComponent } from "../no-projection/no-projection.component"
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
 import {Slide} from '../../models/slide.model';
-import {LoadingPageComponent} from '../loading-page/loading-page.component';
+import {LoadingComponent} from '../loading/loading.component';
+import {NoPresentationComponent} from '../no-presentation/no-presentation.component';
 
 @Component({
   selector: "app-presentation",
   standalone: true,
-  imports: [CommonModule, SlideComponent, PageNumberComponent, NoProjectionComponent, MatProgressSpinnerModule, LoadingPageComponent],
+  imports: [CommonModule, SlideComponent, PageNumberComponent, MatProgressSpinnerModule, LoadingComponent, NoPresentationComponent],
   templateUrl: "./presentation.component.html",
   styleUrls: ["./presentation.component.css"],
 })

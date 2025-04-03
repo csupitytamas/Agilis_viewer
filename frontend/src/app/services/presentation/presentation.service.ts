@@ -4,16 +4,9 @@ import { BehaviorSubject, type Observable, type Subscription, interval, of } fro
 import { catchError, switchMap, tap, map } from "rxjs/operators"
 import {BACKEND_API_URL, BACKEND_HOST_API_URL, BASE_URL} from '../../../environments/api-config';
 import {Slide} from '../../models/slide.model';
+import {PresentationStatus} from '../../models/resentation-status.model';
+import {CurrentSlide} from '../../models/current-slide.model';
 
-export interface PresentationStatus {
-  isRunning: boolean
-}
-
-export interface CurrentSlide {
-  running: boolean
-  slideNumber: number | null
-  slideData?: any
-}
 
 @Injectable({
   providedIn: "root",

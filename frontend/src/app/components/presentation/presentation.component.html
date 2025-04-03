@@ -1,5 +1,5 @@
 <div class="presentation-container">
-  <app-loading-page *ngIf="loading"></app-loading-page>
+  <app-loading *ngIf="loading"></app-loading>
 
   <div *ngIf="error" class="error-container">
     <div class="error-message">
@@ -9,7 +9,7 @@
     </div>
   </div>
 
-  <app-no-projection *ngIf="!loading && !error && !isRunning"></app-no-projection>
+  <app-no-presentation *ngIf="!loading && !error && !isRunning"></app-no-presentation>
 
   <div *ngIf="!loading && !error && isRunning" class="presentation-content">
     <app-slide [slideData]="currentSlide"></app-slide>
