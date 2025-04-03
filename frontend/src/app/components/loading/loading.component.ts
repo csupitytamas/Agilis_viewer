@@ -2,14 +2,14 @@ import { Component } from '@angular/core';
 import {MatProgressBar} from '@angular/material/progress-bar';
 
 @Component({
-  selector: 'app-loading-page',
+  selector: 'app-loading',
   imports: [
     MatProgressBar
   ],
-  templateUrl: './loading-page.component.html',
+  templateUrl: './loading.component.html',
   standalone: true,
-  styleUrl: './loading-page.component.css'
+  styleUrl: './loading.component.css'
 })
-export class LoadingPageComponent {
+export class LoadingComponent {
 
 }
