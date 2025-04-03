@@ -69,11 +69,11 @@ app.get("/api/:id/current-slide", async (req, res) => {
 
       if (waitlist.presentation && waitlist.presentation.id) {
         const presentationId = waitlist.presentation.id
-        console.log(`Fetching presentation data for ID: ${presentationId}`)
+        //console.log(`Fetching presentation data for ID: ${presentationId}`)
 
         try {
           const presentationResponse = await axios.get(`${PRESENTER_API_URL}/presentation/${presentationId}`)
-          console.log("Presentation API response:", presentationResponse.data)
+          //console.log("Presentation API response:", presentationResponse.data)
 
           if (presentationResponse.data.success && presentationResponse.data.presentation) {
             const presentation = presentationResponse.data.presentation
