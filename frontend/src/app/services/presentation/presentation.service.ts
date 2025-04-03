@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core"
 import { HttpClient } from "@angular/common/http" // Changed from import type
 import { BehaviorSubject, type Observable, type Subscription, interval, of } from "rxjs"
 import { catchError, switchMap, tap, map } from "rxjs/operators"
-import {BACKEND_API_URL} from '../../../environments/api-config';
+import {BACKEND_API_URL, BACKEND_HOST_API_URL, BASE_URL} from '../../../environments/api-config';
 import {Slide} from '../../models/slide.model';
 
 export interface PresentationStatus {
@@ -19,7 +19,7 @@ export interface CurrentSlide {
   providedIn: "root",
 })
 export class PresentationService {
-  private API_URL = BACKEND_API_URL;
+  private API_URL = BASE_URL.includes('localhost') ? BACKEND_API_URL : BACKEND_HOST_API_URL;
 
   private isRunningSubject = new BehaviorSubject<boolean>(false)
   isRunning$ = this.isRunningSubject.asObservable()
