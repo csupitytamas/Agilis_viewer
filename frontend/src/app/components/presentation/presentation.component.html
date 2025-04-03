@@ -1,11 +1,14 @@
 <div class="presentation-container">
-  <app-loading *ngIf="loading"></app-loading>
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading presentation...</p>
+  </div>
 
   <div *ngIf="error" class="error-container">
     <div class="error-message">
       <h2>Error</h2>
       <p>{{ error }}</p>
-      <button (click)="retryConnection()">Retry</button>
+      <button mat-raised-button color="primary" (click)="retryConnection()">Retry</button>
     </div>
   </div>
 
@@ -13,7 +16,8 @@
 
   <div *ngIf="!loading && !error && isRunning" class="presentation-content">
     <app-slide [slideData]="currentSlide"></app-slide>
-    <app-page-number></app-page-number>
+    <app-page-number *ngIf="currentSlide"></app-page-number>
   </div>
+
 </div>
 
