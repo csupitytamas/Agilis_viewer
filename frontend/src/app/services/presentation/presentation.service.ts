@@ -1,18 +1,19 @@
 import { Injectable } from "@angular/core"
-import { HttpClient } from "@angular/common/http" // Changed from import type
-import { BehaviorSubject, type Observable, type Subscription, interval, of } from "rxjs"
+import { HttpClient } from "@angular/common/http"
+import { BehaviorSubject, Observable, Subscription, interval, of } from "rxjs"
 import { catchError, switchMap, tap, map } from "rxjs/operators"
 import {BACKEND_API_URL, BACKEND_HOST_API_URL, BASE_URL} from '../../../environments/api-config';
+import {Waitlist} from '../../models/waitlist.model';
 import {Slide} from '../../models/slide.model';
-import {PresentationStatus} from '../../models/resentation-status.model';
 import {CurrentSlide} from '../../models/current-slide.model';
-
+import {PresentationStatus} from '../../models/resentation-status.model';
+import {WaitlistsResponse} from '../../models/waitlists-response.model';
 
 @Injectable({
   providedIn: "root",
 })
 export class PresentationService {
-  private API_URL = BASE_URL.includes('localhost') ? BACKEND_API_URL : BACKEND_HOST_API_URL;
+  private API_URL = BASE_URL.includes("localhost") ? BACKEND_API_URL : BACKEND_HOST_API_URL
 
   private isRunningSubject = new BehaviorSubject<boolean>(false)
   isRunning$ = this.isRunningSubject.asObservable()
@@ -29,10 +30,9 @@ export class PresentationService {
 
   constructor(private http: HttpClient) {}
 
-  checkPresentationStatus(presentationId: string | number): Observable<PresentationStatus> {
-    return this.http.get<PresentationStatus>(`${this.API_URL}/${presentationId}/status`).pipe(
+  checkPresentationStatus(waitlistId: string | number): Observable<PresentationStatus> {
+    return this.http.get<PresentationStatus>(`${this.API_URL}/${waitlistId}/status`).pipe(
       tap((status) => {
-        console.log(`Presentation ${presentationId} status:`, status)
         this.isRunningSubject.next(status.isRunning)
       }),
       catchError((error) => {
@@ -43,11 +43,9 @@ export class PresentationService {
     )
   }
 
-  getCurrentSlide(presentationId: string | number): Observable<CurrentSlide> {
-    return this.http.get<CurrentSlide>(`${this.API_URL}/${presentationId}/current-slide`).pipe(
+  getCurrentSlide(waitlistId: string | number): Observable<CurrentSlide> {
+    return this.http.get<CurrentSlide>(`${this.API_URL}/${waitlistId}/current-slide`).pipe(
       tap((slideData) => {
-        console.log("Current slide data:", slideData)
-
         this.isRunningSubject.next(slideData.running)
 
         if (
@@ -55,10 +53,7 @@ export class PresentationService {
           slideData.slideNumber !== null &&
           slideData.slideNumber !== this.lastCheckedSlideNumber
         ) {
-          console.log(`Slide changed: ${this.lastCheckedSlideNumber} -> ${slideData.slideNumber}`)
-
           this.lastCheckedSlideNumber = slideData.slideNumber
-
           this.slideNumberSubject.next(slideData.slideNumber)
 
           if (slideData.slideData) {
@@ -77,17 +72,14 @@ export class PresentationService {
     )
   }
 
-  startPolling(presentationId: string | number, intervalMs = 2000): void {
+  startPolling(waitlistId: string | number, intervalMs = 2000): void {
     this.stopPolling()
 
-    console.log(`Starting polling for presentation ${presentationId}`)
-
     this.pollingSubscription = interval(intervalMs)
-      .pipe(switchMap(() => this.getCurrentSlide(presentationId)))
+      .pipe(switchMap(() => this.getCurrentSlide(waitlistId)))
       .subscribe({
         next: (slideData) => {
           if (!slideData.running && this.isRunningSubject.value) {
-            console.log(`Presentation ${presentationId} is no longer running`)
             this.isRunningSubject.next(false)
             this.stopPolling()
           }
@@ -102,47 +94,43 @@ export class PresentationService {
     if (this.pollingSubscription) {
       this.pollingSubscription.unsubscribe()
       this.pollingSubscription = null
-      console.log("Stopped polling")
     }
   }
 
-  initializePresentation(presentationId: string | number): void {
-    this.checkPresentationStatus(presentationId).subscribe((status) => {
+  initializePresentation(waitlistId: string | number): void {
+    this.checkPresentationStatus(waitlistId).subscribe((status) => {
       if (status.isRunning) {
-        this.getCurrentSlide(presentationId).subscribe((slideData) => {
+        this.getCurrentSlide(waitlistId).subscribe((slideData) => {
           if (slideData.running) {
-            this.startPolling(presentationId)
+            this.startPolling(waitlistId)
           }
         })
       } else {
-        console.log(`Presentation ${presentationId} is not running`)
         this.isRunningSubject.next(false)
       }
     })
   }
 
-  checkForNewSlide(presentationId: string | number): Observable<boolean> {
-    return this.getCurrentSlide(presentationId).pipe(
-      map((slideData) => {
-        if (!slideData.running || slideData.slideNumber === null) {
-          return false
-        }
-
-        if (this.lastCheckedSlideNumber === null) {
-          return true
-        }
-
-        return slideData.slideNumber !== this.lastCheckedSlideNumber
+  getActiveWaitlists(): Observable<Waitlist[]> {
+    return this.http.get<WaitlistsResponse>(`${this.API_URL}/waitlists`).pipe(
+      map((response) => response.waitlists),
+      catchError((error) => {
+        console.error("Error fetching waitlists:", error)
+        return of([])
       }),
     )
   }
 
-  getCurrentSlideNumber(): number | null {
-    return this.slideNumberSubject.value
+  nextSlide(waitlistId: number): Observable<any> {
+    return this.http.post(`${this.API_URL}/${waitlistId}/next`, {})
   }
 
-  getCurrentSlideData(): Slide | null {
-    return this.slideDataSubject.value
+  previousSlide(waitlistId: number): Observable<any> {
+    return this.http.post(`${this.API_URL}/${waitlistId}/previous`, {})
+  }
+
+  gotoSlide(waitlistId: number, slideNumber: number): Observable<any> {
+    return this.http.post(`${this.API_URL}/${waitlistId}/goto`, { slideNumber })
   }
 
   cleanup(): void {
