@@ -8,12 +8,14 @@ import { AppRoutingModule } from './app.routes';
 
 @NgModule({
   declarations: [
-    LoadingPageComponent
+
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    MatProgressBarModule // Hozzáadjuk a MatProgressBarModule-t
+    MatProgressBarModule,
+    LoadingPageComponent,
+    // Hozzáadjuk a MatProgressBarModule-t
   ],
   providers: []
 })

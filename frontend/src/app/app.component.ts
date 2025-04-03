@@ -26,6 +26,7 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    /*
     this.projectionService.startPolling(1000);
 
     this.projectionService.isProjection$.subscribe(value => {
@@ -35,6 +36,7 @@ export class AppComponent implements OnInit {
         this.router.navigate(['/no-projection']);
       }
     });
+     */
   }
 
   title(title: any) {

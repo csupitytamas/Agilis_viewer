@@ -1,0 +1,19 @@
+<div class="presentation-container">
+  <app-loading-page *ngIf="loading"></app-loading-page>
+
+  <div *ngIf="error" class="error-container">
+    <div class="error-message">
+      <h2>Error</h2>
+      <p>{{ error }}</p>
+      <button (click)="retryConnection()">Retry</button>
+    </div>
+  </div>
+
+  <app-no-projection *ngIf="!loading && !error && !isRunning"></app-no-projection>
+
+  <div *ngIf="!loading && !error && isRunning" class="presentation-content">
+    <app-slide [slideData]="currentSlide"></app-slide>
+    <app-page-number></app-page-number>
+  </div>
+</div>
+

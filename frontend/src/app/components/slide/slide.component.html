@@ -1,7 +1,8 @@
 <div class="black-bars">
   <div #slideContainer class="slide-container"></div>
+  <button class="fullscreen-button" (click)="toggleFullscreen()">
+    <span *ngIf="!isFullscreen">Fullscreen</span>
+    <span *ngIf="isFullscreen">Exit Fullscreen</span>
+  </button>
 </div>
 
-<button class="fullscreen-button" (click)="toggleFullscreen()">
-  <i [class]="isFullscreen ? 'fa-solid fa-compress' : 'fa-solid fa-expand'"></i>
-</button>
