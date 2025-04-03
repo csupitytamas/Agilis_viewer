@@ -1,291 +1,140 @@
 const express = require("express")
-const axios = require("axios")
 const app = express()
 const cors = require("cors")
+const axios = require("axios")
 const PORT = 3000
 
+const PRESENTER_API_URL = "https://dev.backend.demosystems.hu/api/v1"
+
 app.use(express.json())
+app.use(cors())
 
-// CORS config-
-app.use(
-    cors({
-      origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`)
+  next()
+})
 
-        const allowedOrigins = ['http://localhost:4200', 'https://viewer.norbif.hu'];
+app.get("/api/waitlists", async (req, res) => {
+  try {
+    //TODO: IMPLEMENT THIS
+    res.json({
+      waitlists: [
+      ],
+    })
+  } catch (error) {
+    console.error("Error fetching waitlists:", error)
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch waitlists",
+    })
+  }
+})
 
-        if (allowedOrigins.includes(origin)) {
-          return callback(null, true);
-        } else {
-          console.log(`Origin ${origin} not allowed by CORS`);
-          return callback(new Error('Not allowed by CORS'), false);
+app.get("/api/:id/status", async (req, res) => {
+  const waitlistId = req.params.id
+  console.log(`Checking status for waitlist ${waitlistId}`)
+
+  try {
+    const response = await axios.get(`${PRESENTER_API_URL}/waitlist/${waitlistId}`)
+    console.log("Presenter API response:", response.data)
+
+    if (response.data.success && response.data.waitlist) {
+      const isRunning = response.data.waitlist.status === "active"
+      console.log(`Waitlist ${waitlistId} is running: ${isRunning}`)
+      res.json({ isRunning })
+    } else {
+      console.log(`Waitlist ${waitlistId} not found or not successful`)
+      res.json({ isRunning: false })
+    }
+  } catch (error) {
+    console.error(`Error checking waitlist ${waitlistId} status:`, error)
+    res.json({ isRunning: false })
+  }
+})
+
+app.get("/api/:id/current-slide", async (req, res) => {
+  const waitlistId = req.params.id
+  console.log(`Fetching current slide for waitlist ${waitlistId}`)
+
+  try {
+    const waitlistResponse = await axios.get(`${PRESENTER_API_URL}/waitlist/${waitlistId}`)
+    console.log("Waitlist API response:", waitlistResponse.data)
+
+    if (
+        waitlistResponse.data.success &&
+        waitlistResponse.data.waitlist &&
+        waitlistResponse.data.waitlist.status === "active"
+    ) {
+      const waitlist = waitlistResponse.data.waitlist
+      const currentSlideNumber = waitlist.currentSlide
+
+      if (waitlist.presentation && waitlist.presentation.id) {
+        const presentationId = waitlist.presentation.id
+        console.log(`Fetching presentation data for ID: ${presentationId}`)
+
+        try {
+          const presentationResponse = await axios.get(`${PRESENTER_API_URL}/presentation/${presentationId}`)
+          console.log("Presentation API response:", presentationResponse.data)
+
+          if (presentationResponse.data.success && presentationResponse.data.presentation) {
+            const presentation = presentationResponse.data.presentation
+
+            if (
+                presentation.content &&
+                presentation.content.slides &&
+                presentation.content.slides.length > currentSlideNumber
+            ) {
+              const slideData = presentation.content.slides[currentSlideNumber]
+
+              console.log(`Returning slide ${currentSlideNumber} for waitlist ${waitlistId}`)
+              res.json({
+                running: true,
+                slideNumber: currentSlideNumber,
+                slideData,
+              })
+              return
+            }
+          }
+        } catch (presentationError) {
+          console.error(`Error fetching presentation data for ID ${presentationId}:`, presentationError)
         }
-      },
-      credentials: true,
-    }),
-);
-
-
-// Slideok tarolasa
-const presentations = new Map()
-
-// Test data for development
-const testPresentationId = 'ed9659b5-f83f-41af-8886-75a694ea38f7';
-presentations.set(testPresentationId, {
-  id: testPresentationId,
-  isRunning: true,
-  currentSlideData: {
-    id: "ed9659b5-f83f-41af-8886-75a694ea38f7",
-    backgroundPath: "None",
-    pageNumber: 2,
-    widgets: [
-      {
-        id: "df40825c-a676-4ffb-9cfd-1540354fa0c2",
-        positionX: 40,
-        positionY: 50,
-        width: 30,
-        height: 20,
-        type: "TextBox",
-        text: "Ez csak egy próba szöveg",
-        fontSize: 11
       }
-    ]
-  },
-  startedAt: new Date(),
-  updatedAt: new Date()
-});
-console.log(`Test presentation ${testPresentationId} added to memory`);
 
-const testPresentationId2 = 'ed9659b5-f83f-41af-8886-75a694ea38f6';
-presentations.set(testPresentationId2, {
-  id: testPresentationId2,
-  isRunning: false,
-  currentSlideData: {
-    id: "ed9659b5-f83f-41af-8886-75a694ea38f6",
-    backgroundPath: "None",
-    pageNumber: 2,
-    widgets: [
-      {
-        id: "df40825c-a676-4ffb-9cfd-1540354fa0c2",
-        positionX: 40,
-        positionY: 50,
-        width: 30,
-        height: 20,
-        type: "TextBox",
-        text: "Ez csak egy próba szöveg",
-        fontSize: 11
-      }
-    ]
-  },
-  startedAt: new Date(),
-  updatedAt: new Date()
-});
-console.log(`Test presentation ${testPresentationId2} added to memory`);
+      console.log(`No slide content available for waitlist ${waitlistId}, creating placeholder`)
+    } else {
+      console.log(`Waitlist ${waitlistId} not running or not found`)
+      res.json({ running: false, slideNumber: null })
+    }
+  } catch (error) {
+    console.error(`Error fetching current slide for waitlist ${waitlistId}:`, error)
+    res.json({ running: false, slideNumber: null })
+  }
+})
 
-// Controller API URL
-const CONTROLLER_URL = "https://viewer.norbif.hu/api/v1"
+app.get("/api/:id/raw", async (req, res) => {
+  const waitlistId = req.params.id
+  try {
+    const response = await axios.get(`${PRESENTER_API_URL}/waitlist/${waitlistId}`)
+    res.json(response.data)
+  } catch (error) {
+    console.error(`Error fetching raw data for waitlist ${waitlistId}:`, error)
+    res.status(500).json({ success: false, error: "Failed to fetch data" })
+  }
+})
 
-app.get("/api/:id/status", (req, res) => {
+app.get("/api/presentation/:id/raw", async (req, res) => {
   const presentationId = req.params.id
-  const presentation = presentations.get(presentationId)
-
-  if (!presentation) {
-    return res.json({ isRunning: false })
-  }
-
-  res.json({ isRunning: presentation.isRunning })
-})
-
-app.get("/api/:id/current-slide", (req, res) => {
-  const presentationId = req.params.id
-  const presentation = presentations.get(presentationId)
-
-  if (!presentation || !presentation.isRunning || !presentation.currentSlideData) {
-    return res.status(200).json({ running: false, slideNumber: null })
-  }
-
-  res.json({
-    running: true,
-    slideNumber: presentation.currentSlideData.pageNumber || null,
-    slideData: presentation.currentSlideData,
-  })
-})
-
-// Hibakezelés
-function respondError(res, err, status = 500) {
-  console.error("Error:", err)
-  return res.status(status).json({ success: false, error: err.message || err })
-}
-
-// Start
-app.post("/:id/start", (req, res) => {
   try {
-    const presentationId = req.params.id
-    const { slide } = req.body
-
-    if (!slide) throw new Error("Missing slide data in start request")
-
-    presentations.set(presentationId, {
-      id: presentationId,
-      isRunning: true,
-      currentSlideData: slide,
-      startedAt: new Date(),
-    })
-
-    console.log(`START received for presentation ${presentationId}`)
-    res.json({ success: true })
-  } catch (err) {
-    respondError(res, err)
+    const response = await axios.get(`${PRESENTER_API_URL}/presentation/${presentationId}`)
+    res.json(response.data)
+  } catch (error) {
+    console.error(`Error fetching raw presentation data for ID ${presentationId}:`, error)
+    res.status(500).json({ success: false, error: "Failed to fetch presentation data" })
   }
-})
-
-// Stop
-app.post("/:id/stop", (req, res) => {
-  try {
-    const presentationId = req.params.id
-    const presentation = presentations.get(presentationId)
-
-    if (presentation) {
-      presentation.isRunning = false
-      presentation.closedAt = new Date()
-    }
-
-    console.log(`STOP received for presentation ${presentationId}`)
-    res.json({ success: true })
-  } catch (err) {
-    respondError(res, err)
-  }
-})
-
-// Next
-app.post("/:id/next", (req, res) => {
-  try {
-    const presentationId = req.params.id
-    const { slide } = req.body
-    const presentation = presentations.get(presentationId)
-
-    if (!slide) throw new Error("Missing slide data in next request")
-
-    if (presentation) {
-      presentation.currentSlideData = slide
-      presentation.updatedAt = new Date()
-    } else {
-      presentations.set(presentationId, {
-        id: presentationId,
-        isRunning: true,
-        currentSlideData: slide,
-        startedAt: new Date(),
-        updatedAt: new Date(),
-      })
-    }
-
-    console.log(`NEXT received for presentation ${presentationId}`)
-    res.json({ success: true })
-  } catch (err) {
-    respondError(res, err)
-  }
-})
-
-// Previous
-app.post("/:id/previous", (req, res) => {
-  try {
-    const presentationId = req.params.id
-    const { slide } = req.body
-    const presentation = presentations.get(presentationId)
-
-    if (!slide) throw new Error("Missing slide data in previous request")
-
-    if (presentation) {
-      presentation.currentSlideData = slide
-      presentation.updatedAt = new Date()
-    } else {
-      presentations.set(presentationId, {
-        id: presentationId,
-        isRunning: true,
-        currentSlideData: slide,
-        startedAt: new Date(),
-        updatedAt: new Date(),
-      })
-    }
-
-    console.log(`PREVIOUS received for presentation ${presentationId}`)
-    res.json({ success: true })
-  } catch (err) {
-    respondError(res, err)
-  }
-})
-
-// Goto
-app.post("/:id/goto", (req, res) => {
-  try {
-    const presentationId = req.params.id
-    const { gotoSlide, slide } = req.body
-    const presentation = presentations.get(presentationId)
-
-    if (gotoSlide === undefined) throw new Error("Missing gotoSlide number")
-    if (!slide) throw new Error("Missing slide data in goto request")
-
-    if (presentation) {
-      presentation.currentSlideData = slide
-      presentation.updatedAt = new Date()
-    } else {
-      presentations.set(presentationId, {
-        id: presentationId,
-        isRunning: true,
-        currentSlideData: slide,
-        startedAt: new Date(),
-        updatedAt: new Date(),
-      })
-    }
-
-    console.log(`GOTO received to slide ${gotoSlide} for presentation ${presentationId}`)
-    res.json({ success: true })
-  } catch (err) {
-    respondError(res, err)
-  }
-})
-
-// Restart
-app.post("/:id/restart", (req, res) => {
-  try {
-    const presentationId = req.params.id
-    const { slide } = req.body
-
-    if (!slide) throw new Error("Missing slide data in restart request")
-
-    presentations.set(presentationId, {
-      id: presentationId,
-      isRunning: true,
-      currentSlideData: slide,
-      startedAt: new Date(),
-      updatedAt: new Date(),
-    })
-
-    console.log(`RESTART received for presentation ${presentationId}`)
-    res.json({ success: true })
-  } catch (err) {
-    respondError(res, err)
-  }
-})
-
-app.get("/api/presentations", (req, res) => {
-  const activePresentation = []
-
-  presentations.forEach((presentation, id) => {
-    if (presentation.isRunning) {
-      activePresentation.push({
-        id,
-        startedAt: presentation.startedAt,
-        currentSlide: presentation.currentSlideData?.pageNumber,
-      })
-    }
-  })
-
-  res.json({ presentations: activePresentation })
 })
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`)
+  console.log(`API is available at http://localhost:${PORT}/api`)
 })
 

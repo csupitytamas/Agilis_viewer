@@ -1,13 +1,13 @@
 import {
   Component,
-  type OnInit,
-  type ElementRef,
+  OnInit,
+  ElementRef,
   ViewChild,
-  type AfterViewInit,
+  AfterViewInit,
   HostListener,
   Input,
-  type OnChanges,
-  type SimpleChanges,
+  OnChanges,
+  SimpleChanges,
 } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import {Slide} from '../../models/slide.model';
@@ -41,7 +41,7 @@ export class SlideComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   calculateFontSize(widgetFontSize: number, containerWidth: number): number {
-    const baseWidth = 1920 // Base width
+    const baseWidth = 1920
     return ((widgetFontSize * containerWidth) / baseWidth) * 1.5
   }
 
@@ -74,7 +74,7 @@ export class SlideComponent implements OnInit, AfterViewInit, OnChanges {
       container.style.backgroundImage = `url(${this.slideData.backgroundPath})`
     }
 
-    this.slideData.widgets.forEach((widget) => {
+    this.slideData.widgets.forEach((widget: Widget) => {
       const elem: HTMLElement = this.createWidget(widget)
       container.appendChild(elem)
     })
