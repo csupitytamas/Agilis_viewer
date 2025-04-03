@@ -2,23 +2,23 @@ import { Component, type OnInit, type OnDestroy } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { ActivatedRoute } from "@angular/router"
 import { Subscription } from "rxjs"
-import { PresentationService } from "../../services/presentation/presentation.service"
 import { SlideComponent } from "../slide/slide.component"
 import { PageNumberComponent } from "../page-number/page-number.component"
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
 import {Slide} from '../../models/slide.model';
-import {LoadingComponent} from '../loading/loading.component';
 import {NoPresentationComponent} from '../no-presentation/no-presentation.component';
+import {PresentationService} from '../../services/presentation/presentation.service';
+import {LoadingComponent} from '../loading/loading.component';
 
 @Component({
   selector: "app-presentation",
   standalone: true,
-  imports: [CommonModule, SlideComponent, PageNumberComponent, MatProgressSpinnerModule, LoadingComponent, NoPresentationComponent],
+  imports: [CommonModule, SlideComponent, PageNumberComponent, NoPresentationComponent, MatProgressSpinnerModule, LoadingComponent],
   templateUrl: "./presentation.component.html",
   styleUrls: ["./presentation.component.css"],
 })
 export class PresentationComponent implements OnInit, OnDestroy {
-  presentationId: string | number = ""
+  waitlistId: string | number = ""
   isRunning = false
   currentSlide: Slide | null = null
   loading = true
@@ -34,7 +34,7 @@ export class PresentationComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
-      this.presentationId = params["id"]
+      this.waitlistId = params["id"]
       this.initializePresentation()
     })
   }
@@ -44,9 +44,7 @@ export class PresentationComponent implements OnInit, OnDestroy {
     this.error = null
 
     this.runningSubscription = this.presentationService.isRunning$.subscribe((isRunning) => {
-      console.log("Presentation running status:", isRunning)
       this.isRunning = isRunning
-
       this.loading = false
 
       if (!isRunning) {
@@ -55,11 +53,10 @@ export class PresentationComponent implements OnInit, OnDestroy {
     })
 
     this.slideDataSubscription = this.presentationService.slideData$.subscribe((slideData) => {
-      console.log("Received slide data:", slideData)
       this.currentSlide = slideData
     })
 
-    this.presentationService.initializePresentation(this.presentationId)
+    this.presentationService.initializePresentation(this.waitlistId)
   }
 
   retryConnection(): void {

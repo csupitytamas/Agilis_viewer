@@ -1,48 +1,53 @@
 <div class="home-container">
-  <mat-card class="home-card">
-    <mat-card-header>
-      <mat-card-title>Presentation Viewer</mat-card-title>
-      <mat-card-subtitle>Enter the complete presentation ID (UUID format)</mat-card-subtitle>
-    </mat-card-header>
-
-    <mat-card-content>
-      <form [formGroup]="presentationForm" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Presentation ID</mat-label>
-          <input
-            matInput
-            formControlName="presentationId"
-            placeholder="e.g. ed9659b5-f83f-41af-8886-75a694ea38f7"
-            autocomplete="off"
-          >
-          <mat-icon matSuffix>slideshow</mat-icon>
-          <mat-error *ngIf="submitted && f['presentationId'].errors">
-            <span *ngIf="f['presentationId'].errors?.['required']">Presentation ID is required</span>
-            <span *ngIf="f['presentationId'].errors?.['pattern']">Please enter a valid UUID format (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)</span>
-          </mat-error>
-        </mat-form-field>
-
-        <div class="button-container">
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
-          >
-            View Presentation
-          </button>
+  <div class="content-wrapper">
+    <mat-card class="home-card">
+      <mat-card-header>
+        <div class="header-content">
+          <mat-card-title>Presentation Viewer</mat-card-title>
+          <mat-card-subtitle>Enter a 6-digit waitlist ID to view a presentation</mat-card-subtitle>
         </div>
-      </form>
+      </mat-card-header>
 
-      <div *ngIf="errorMessage" class="error-message">
-        {{ errorMessage }}
-      </div>
-    </mat-card-content>
+      <mat-card-content>
+        <form [formGroup]="presentationForm" (ngSubmit)="onSubmit()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Waitlist ID</mat-label>
+            <input
+              matInput
+              formControlName="waitlistId"
+              placeholder="e.g. 100001"
+              autocomplete="off"
+            >
+            <mat-icon matSuffix>slideshow</mat-icon>
+            <mat-error *ngIf="submitted && f['waitlistId'].errors">
+              <span *ngIf="f['waitlistId'].errors?.['required']">Waitlist ID is required</span>
+              <span *ngIf="f['waitlistId'].errors?.['pattern']">Please enter a valid 6-digit ID</span>
+            </mat-error>
+          </mat-form-field>
 
-    <mat-card-footer>
-      <div class="footer-content">
-        <p>Need help? Contact the presenter for the correct presentation ID.</p>
-      </div>
-    </mat-card-footer>
-  </mat-card>
+          <div class="button-container">
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+            >
+              <mat-icon>visibility</mat-icon>
+              View Presentation
+            </button>
+          </div>
+        </form>
+
+        <div *ngIf="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+      </mat-card-content>
+
+      <mat-card-footer>
+        <div class="footer-content">
+          <p>Need help? Contact the presenter for the correct waitlist ID.</p>
+        </div>
+      </mat-card-footer>
+    </mat-card>
+  </div>
 </div>
 

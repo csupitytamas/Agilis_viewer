@@ -1,291 +1,442 @@
 const express = require("express")
-const axios = require("axios")
 const app = express()
 const cors = require("cors")
 const PORT = 3000
+const { v4: uuidv4 } = require("uuid")
 
 app.use(express.json())
 
-// CORS config-
 app.use(
     cors({
       origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
+        if (!origin) return callback(null, true)
 
-        const allowedOrigins = ['http://localhost:4200', 'https://viewer.norbif.hu'];
+        const allowedOrigins = ["http://localhost:4200", "https://viewer.norbif.hu"]
 
         if (allowedOrigins.includes(origin)) {
-          return callback(null, true);
+          return callback(null, true)
         } else {
-          console.log(`Origin ${origin} not allowed by CORS`);
-          return callback(new Error('Not allowed by CORS'), false);
+          console.log(`Origin ${origin} not allowed by CORS`)
+          return callback(new Error("Not allowed by CORS"), false)
         }
       },
       credentials: true,
     }),
-);
+)
+
+const waitlists = new Map()
 
 
-// Slideok tarolasa
-const presentations = new Map()
+app.get("/api/waitlists", (req, res) => {
+  const waitlistArray = []
 
-// Test data for development
-const testPresentationId = 'ed9659b5-f83f-41af-8886-75a694ea38f7';
-presentations.set(testPresentationId, {
-  id: testPresentationId,
-  isRunning: true,
-  currentSlideData: {
-    id: "ed9659b5-f83f-41af-8886-75a694ea38f7",
-    backgroundPath: "None",
-    pageNumber: 2,
-    widgets: [
-      {
-        id: "df40825c-a676-4ffb-9cfd-1540354fa0c2",
-        positionX: 40,
-        positionY: 50,
-        width: 30,
-        height: 20,
-        type: "TextBox",
-        text: "Ez csak egy próba szöveg",
-        fontSize: 11
-      }
-    ]
-  },
-  startedAt: new Date(),
-  updatedAt: new Date()
-});
-console.log(`Test presentation ${testPresentationId} added to memory`);
+  waitlists.forEach((waitlist) => {
+    if (waitlist.status === "active") {
+      waitlistArray.push({
+        id: waitlist.id,
+        title: waitlist.title,
+        description: waitlist.description,
+        maxParticipants: waitlist.maxParticipants,
+        currentParticipants: waitlist.currentParticipants.length,
+        startedAt: waitlist.startedAt,
+        createdAt: waitlist.createdAt,
+        createdBy: waitlist.createdBy,
+        status: waitlist.status,
+        presentation: {
+          id: waitlist.presentation.id,
+          title: waitlist.presentation.title,
+          thumbnail: waitlist.presentation.thumbnail,
+        },
+      })
+    }
+  })
 
-const testPresentationId2 = 'ed9659b5-f83f-41af-8886-75a694ea38f6';
-presentations.set(testPresentationId2, {
-  id: testPresentationId2,
-  isRunning: false,
-  currentSlideData: {
-    id: "ed9659b5-f83f-41af-8886-75a694ea38f6",
-    backgroundPath: "None",
-    pageNumber: 2,
-    widgets: [
-      {
-        id: "df40825c-a676-4ffb-9cfd-1540354fa0c2",
-        positionX: 40,
-        positionY: 50,
-        width: 30,
-        height: 20,
-        type: "TextBox",
-        text: "Ez csak egy próba szöveg",
-        fontSize: 11
-      }
-    ]
-  },
-  startedAt: new Date(),
-  updatedAt: new Date()
-});
-console.log(`Test presentation ${testPresentationId2} added to memory`);
-
-// Controller API URL
-const CONTROLLER_URL = "https://viewer.norbif.hu/api/v1"
+  res.json({ waitlists: waitlistArray })
+})
 
 app.get("/api/:id/status", (req, res) => {
-  const presentationId = req.params.id
-  const presentation = presentations.get(presentationId)
+  const waitlistId = Number.parseInt(req.params.id)
+  const waitlist = waitlists.get(waitlistId)
 
-  if (!presentation) {
+  if (!waitlist) {
     return res.json({ isRunning: false })
   }
 
-  res.json({ isRunning: presentation.isRunning })
+  const isRunning = waitlist.status === "active"
+  res.json({ isRunning })
 })
 
 app.get("/api/:id/current-slide", (req, res) => {
-  const presentationId = req.params.id
-  const presentation = presentations.get(presentationId)
+  const waitlistId = Number.parseInt(req.params.id)
+  const waitlist = waitlists.get(waitlistId)
 
-  if (!presentation || !presentation.isRunning || !presentation.currentSlideData) {
+  if (!waitlist || waitlist.status !== "active") {
     return res.status(200).json({ running: false, slideNumber: null })
   }
 
+  const slideData = waitlist.presentation.content.slides[waitlist.currentSlide]
+
   res.json({
     running: true,
-    slideNumber: presentation.currentSlideData.pageNumber || null,
-    slideData: presentation.currentSlideData,
+    slideNumber: waitlist.currentSlide,
+    slideData,
   })
 })
 
-// Hibakezelés
-function respondError(res, err, status = 500) {
-  console.error("Error:", err)
-  return res.status(status).json({ success: false, error: err.message || err })
-}
+app.post("/api/:id/join", (req, res) => {
+  const waitlistId = Number.parseInt(req.params.id)
+  const { userId, userName } = req.body
+  const waitlist = waitlists.get(waitlistId)
 
-// Start
-app.post("/:id/start", (req, res) => {
-  try {
-    const presentationId = req.params.id
-    const { slide } = req.body
-
-    if (!slide) throw new Error("Missing slide data in start request")
-
-    presentations.set(presentationId, {
-      id: presentationId,
-      isRunning: true,
-      currentSlideData: slide,
-      startedAt: new Date(),
-    })
-
-    console.log(`START received for presentation ${presentationId}`)
-    res.json({ success: true })
-  } catch (err) {
-    respondError(res, err)
+  if (!waitlist) {
+    return res.status(404).json({ success: false, error: "Waitlist not found" })
   }
+
+  if (waitlist.status !== "active") {
+    return res.status(400).json({ success: false, error: "Waitlist is not active" })
+  }
+
+  if (waitlist.maxParticipants > 0 && waitlist.currentParticipants.length >= waitlist.maxParticipants) {
+    return res.status(400).json({ success: false, error: "Maximum participants reached" })
+  }
+
+  const participant = { id: userId, name: userName }
+
+  if (!waitlist.currentParticipants.some((p) => p.id === userId)) {
+    waitlist.currentParticipants.push(participant)
+  }
+
+  res.json({ success: true })
 })
 
-// Stop
-app.post("/:id/stop", (req, res) => {
-  try {
-    const presentationId = req.params.id
-    const presentation = presentations.get(presentationId)
+app.post("/api/:id/leave", (req, res) => {
+  const waitlistId = Number.parseInt(req.params.id)
+  const { userId } = req.body
+  const waitlist = waitlists.get(waitlistId)
 
-    if (presentation) {
-      presentation.isRunning = false
-      presentation.closedAt = new Date()
-    }
-
-    console.log(`STOP received for presentation ${presentationId}`)
-    res.json({ success: true })
-  } catch (err) {
-    respondError(res, err)
+  if (!waitlist) {
+    return res.status(404).json({ success: false, error: "Waitlist not found" })
   }
+
+  waitlist.currentParticipants = waitlist.currentParticipants.filter((p) => p.id !== userId)
+
+  res.json({ success: true })
 })
 
-// Next
-app.post("/:id/next", (req, res) => {
-  try {
-    const presentationId = req.params.id
-    const { slide } = req.body
-    const presentation = presentations.get(presentationId)
+app.post("/api/:id/start", (req, res) => {
+  const waitlistId = Number.parseInt(req.params.id)
+  const waitlist = waitlists.get(waitlistId)
 
-    if (!slide) throw new Error("Missing slide data in next request")
-
-    if (presentation) {
-      presentation.currentSlideData = slide
-      presentation.updatedAt = new Date()
-    } else {
-      presentations.set(presentationId, {
-        id: presentationId,
-        isRunning: true,
-        currentSlideData: slide,
-        startedAt: new Date(),
-        updatedAt: new Date(),
-      })
-    }
-
-    console.log(`NEXT received for presentation ${presentationId}`)
-    res.json({ success: true })
-  } catch (err) {
-    respondError(res, err)
+  if (!waitlist) {
+    return res.status(404).json({ success: false, error: "Waitlist not found" })
   }
+
+  waitlist.status = "active"
+  waitlist.startedAt = new Date()
+  waitlist.currentSlide = 0
+
+  res.json({ success: true })
 })
 
-// Previous
-app.post("/:id/previous", (req, res) => {
-  try {
-    const presentationId = req.params.id
-    const { slide } = req.body
-    const presentation = presentations.get(presentationId)
+app.post("/api/:id/stop", (req, res) => {
+  const waitlistId = Number.parseInt(req.params.id)
+  const waitlist = waitlists.get(waitlistId)
 
-    if (!slide) throw new Error("Missing slide data in previous request")
-
-    if (presentation) {
-      presentation.currentSlideData = slide
-      presentation.updatedAt = new Date()
-    } else {
-      presentations.set(presentationId, {
-        id: presentationId,
-        isRunning: true,
-        currentSlideData: slide,
-        startedAt: new Date(),
-        updatedAt: new Date(),
-      })
-    }
-
-    console.log(`PREVIOUS received for presentation ${presentationId}`)
-    res.json({ success: true })
-  } catch (err) {
-    respondError(res, err)
+  if (!waitlist) {
+    return res.status(404).json({ success: false, error: "Waitlist not found" })
   }
+
+  waitlist.status = "inactive"
+  waitlist.closedAt = new Date()
+  waitlist.currentParticipants = []
+
+  res.json({ success: true })
 })
 
-// Goto
-app.post("/:id/goto", (req, res) => {
-  try {
-    const presentationId = req.params.id
-    const { gotoSlide, slide } = req.body
-    const presentation = presentations.get(presentationId)
+app.post("/api/:id/next", (req, res) => {
+  const waitlistId = Number.parseInt(req.params.id)
+  const waitlist = waitlists.get(waitlistId)
 
-    if (gotoSlide === undefined) throw new Error("Missing gotoSlide number")
-    if (!slide) throw new Error("Missing slide data in goto request")
-
-    if (presentation) {
-      presentation.currentSlideData = slide
-      presentation.updatedAt = new Date()
-    } else {
-      presentations.set(presentationId, {
-        id: presentationId,
-        isRunning: true,
-        currentSlideData: slide,
-        startedAt: new Date(),
-        updatedAt: new Date(),
-      })
-    }
-
-    console.log(`GOTO received to slide ${gotoSlide} for presentation ${presentationId}`)
-    res.json({ success: true })
-  } catch (err) {
-    respondError(res, err)
+  if (!waitlist) {
+    return res.status(404).json({ success: false, error: "Waitlist not found" })
   }
+
+  if (waitlist.status !== "active") {
+    return res.status(400).json({ success: false, error: "Waitlist is not active" })
+  }
+
+  const totalSlides = waitlist.presentation.content.slides.length
+
+  if (waitlist.currentSlide < totalSlides - 1) {
+    waitlist.currentSlide++
+  }
+
+  res.json({
+    success: true,
+    currentSlide: waitlist.currentSlide,
+  })
 })
 
-// Restart
-app.post("/:id/restart", (req, res) => {
-  try {
-    const presentationId = req.params.id
-    const { slide } = req.body
+app.post("/api/:id/previous", (req, res) => {
+  const waitlistId = Number.parseInt(req.params.id)
+  const waitlist = waitlists.get(waitlistId)
 
-    if (!slide) throw new Error("Missing slide data in restart request")
+  if (!waitlist) {
+    return res.status(404).json({ success: false, error: "Waitlist not found" })
+  }
 
-    presentations.set(presentationId, {
-      id: presentationId,
-      isRunning: true,
-      currentSlideData: slide,
-      startedAt: new Date(),
+  if (waitlist.status !== "active") {
+    return res.status(400).json({ success: false, error: "Waitlist is not active" })
+  }
+
+  if (waitlist.currentSlide > 0) {
+    waitlist.currentSlide--
+  }
+
+  res.json({
+    success: true,
+    currentSlide: waitlist.currentSlide,
+  })
+})
+
+app.post("/api/:id/goto", (req, res) => {
+  const waitlistId = Number.parseInt(req.params.id)
+  const { slideNumber } = req.body
+  const waitlist = waitlists.get(waitlistId)
+
+  if (!waitlist) {
+    return res.status(404).json({ success: false, error: "Waitlist not found" })
+  }
+
+  if (waitlist.status !== "active") {
+    return res.status(400).json({ success: false, error: "Waitlist is not active" })
+  }
+
+  const totalSlides = waitlist.presentation.content.slides.length
+
+  if (slideNumber >= 0 && slideNumber < totalSlides) {
+    waitlist.currentSlide = slideNumber
+  } else {
+    return res.status(400).json({ success: false, error: "Invalid slide number" })
+  }
+
+  res.json({
+    success: true,
+    currentSlide: waitlist.currentSlide,
+  })
+})
+
+function addSampleWaitlists() {
+  const id1 = 100001
+  waitlists.set(id1, {
+    id: id1,
+    title: "Introduction to Angular",
+    description: "Learn the basics of Angular framework",
+    presentation: {
+      id: uuidv4(),
+      title: "Angular Basics",
+      content: {
+        slides: [
+          {
+            id: uuidv4(),
+            backgroundPath: "None",
+            pageNumber: 0,
+            widgets: [
+              {
+                id: uuidv4(),
+                positionX: 40,
+                positionY: 30,
+                width: 50,
+                height: 20,
+                type: "TextBox",
+                text: "Introduction to Angular",
+                fontSize: 24,
+              },
+            ],
+          },
+          {
+            id: uuidv4(),
+            backgroundPath: "None",
+            pageNumber: 1,
+            widgets: [
+              {
+                id: uuidv4(),
+                positionX: 30,
+                positionY: 20,
+                width: 60,
+                height: 15,
+                type: "TextBox",
+                text: "Components and Modules",
+                fontSize: 20,
+              },
+              {
+                id: uuidv4(),
+                positionX: 35,
+                positionY: 40,
+                width: 50,
+                height: 40,
+                type: "TextBox",
+                text: "Angular applications are built using components that are organized into modules.",
+                fontSize: 14,
+              },
+            ],
+          },
+          {
+            id: uuidv4(),
+            backgroundPath: "None",
+            pageNumber: 2,
+            widgets: [
+              {
+                id: uuidv4(),
+                positionX: 40,
+                positionY: 50,
+                width: 30,
+                height: 20,
+                type: "TextBox",
+                text: "Services and Dependency Injection",
+                fontSize: 16,
+              },
+            ],
+          },
+        ],
+      },
+      thumbnail: "/assets/thumbnails/angular.jpg",
+      createdBy: { id: 1, name: "John Doe" },
+      createdAt: new Date(),
       updatedAt: new Date(),
-    })
-
-    console.log(`RESTART received for presentation ${presentationId}`)
-    res.json({ success: true })
-  } catch (err) {
-    respondError(res, err)
-  }
-})
-
-app.get("/api/presentations", (req, res) => {
-  const activePresentation = []
-
-  presentations.forEach((presentation, id) => {
-    if (presentation.isRunning) {
-      activePresentation.push({
-        id,
-        startedAt: presentation.startedAt,
-        currentSlide: presentation.currentSlideData?.pageNumber,
-      })
-    }
+      isPublic: true,
+    },
+    maxParticipants: 0,
+    currentSlide: 0,
+    currentParticipants: [],
+    startedAt: new Date(),
+    createdAt: new Date(),
+    createdBy: { id: 1, name: "John Doe" },
+    status: "active",
   })
 
-  res.json({ presentations: activePresentation })
-})
+  const id2 = 100002
+  waitlists.set(id2, {
+    id: id2,
+    title: "Web Development Best Practices",
+    description: "Modern techniques for web development",
+    presentation: {
+      id: uuidv4(),
+      title: "Web Dev Best Practices",
+      content: {
+        slides: [
+          {
+            id: uuidv4(),
+            backgroundPath: "None",
+            pageNumber: 0,
+            widgets: [
+              {
+                id: uuidv4(),
+                positionX: 35,
+                positionY: 40,
+                width: 50,
+                height: 20,
+                type: "TextBox",
+                text: "Modern Web Development",
+                fontSize: 22,
+              },
+            ],
+          },
+          {
+            id: uuidv4(),
+            backgroundPath: "None",
+            pageNumber: 1,
+            widgets: [
+              {
+                id: uuidv4(),
+                positionX: 40,
+                positionY: 30,
+                width: 40,
+                height: 15,
+                type: "TextBox",
+                text: "Performance Optimization",
+                fontSize: 18,
+              },
+              {
+                id: uuidv4(),
+                positionX: 30,
+                positionY: 50,
+                width: 60,
+                height: 30,
+                type: "TextBox",
+                text: "Optimize your web applications for better performance and user experience.",
+                fontSize: 14,
+              },
+            ],
+          },
+        ],
+      },
+      thumbnail: "/assets/thumbnails/webdev.jpg",
+      createdBy: { id: 2, name: "Jane Smith" },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isPublic: true,
+    },
+    maxParticipants: 20,
+    currentSlide: 1,
+    currentParticipants: [
+      { id: 101, name: "User 1" },
+      { id: 102, name: "User 2" },
+    ],
+    startedAt: new Date(),
+    createdAt: new Date(),
+    createdBy: { id: 2, name: "Jane Smith" },
+    status: "active",
+  })
+
+  const id3 = 1003
+  waitlists.set(id3, {
+    id: id3,
+    title: "JavaScript Fundamentals",
+    description: "Core concepts of JavaScript programming",
+    presentation: {
+      id: uuidv4(),
+      title: "JavaScript Fundamentals",
+      content: {
+        slides: [
+          {
+            id: uuidv4(),
+            backgroundPath: "None",
+            pageNumber: 0,
+            widgets: [
+              {
+                id: uuidv4(),
+                positionX: 40,
+                positionY: 40,
+                width: 40,
+                height: 20,
+                type: "TextBox",
+                text: "JavaScript Basics",
+                fontSize: 20,
+              },
+            ],
+          },
+        ],
+      },
+      thumbnail: "/assets/thumbnails/javascript.jpg",
+      createdBy: { id: 1, name: "John Doe" },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isPublic: false,
+    },
+    maxParticipants: 15,
+    currentSlide: 0,
+    currentParticipants: [],
+    createdAt: new Date(),
+    createdBy: { id: 1, name: "John Doe" },
+    status: "inactive",
+  })
+}
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`)
+  addSampleWaitlists()
 })
+
+
 
