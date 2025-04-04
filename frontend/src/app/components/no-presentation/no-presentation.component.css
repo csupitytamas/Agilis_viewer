@@ -1,4 +1,4 @@
-body, html {
+ody, html {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -33,12 +33,10 @@ body, html {
   overflow: hidden;
   max-width: 80%;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  font-family: 'Segoe UI', sans-serif;
-  font-size: 16px;
-  box-shadow: 0 3px 30px rgb(255, 255, 255);
-  z-index: 1000;
+  transition: all 0.3s ease;
+  z-index: 1;
 }
 
 .no-projection-message p {
@@ -74,7 +72,6 @@ body, html {
   }
 }
 
-
 .no-projection-message::after {
   content: '';
   position: absolute;
@@ -83,7 +80,7 @@ body, html {
   right: -2px;
   bottom: -2px;
   border-radius: 20px;
-  background: linear-gradient(45deg, #ffffff, #000000, #656464);
+  background: linear-gradient(45deg, #fff, #999, #fff);
   background-size: 200% 200%;
   z-index: -1;
   opacity: 0.3;
