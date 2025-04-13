@@ -119,7 +119,7 @@ app.get("/api/:id/current-slide", async (req, res) => {
           pageNumber: currentSlideNumber,
           widgets: [
             {
-              id: `widget-${currentSlideNumber}-1`,
+              id: `widget-${currentSlideNumber}`,
               positionX: 40,
               positionY: 40,
               width: 50,
