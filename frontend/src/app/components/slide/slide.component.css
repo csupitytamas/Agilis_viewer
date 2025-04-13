@@ -15,7 +15,9 @@
 }
 
 .slide-container {
-  background-color: white;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   box-shadow: 0 0 15px white;
   transition: box-shadow 0.3s ease-in-out;
   position: relative; /* A widgetek erre a konténerre lesznek pozicionálva */
