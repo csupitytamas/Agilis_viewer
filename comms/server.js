@@ -83,7 +83,7 @@ app.get("/api/:id/current-slide", async (req, res) => {
                 presentation.content.slides &&
                 presentation.content.slides.length > 0
             ) {
-              const slideData = presentation.content.slides[currentSlideNumber];
+              const slideData = presentation.content.slides[currentSlideNumber -1 ];
 
               if (slideData) {
                 console.log(`Found slide with pageNumber ${currentSlideNumber} for waitlist ${waitlistId}`)
