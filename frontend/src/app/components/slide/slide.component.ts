@@ -49,6 +49,7 @@ export class SlideComponent implements OnInit, AfterViewInit, OnChanges {
     const elem: HTMLElement = document.createElement("div")
     elem.classList.add("widget")
 
+    //Pozíciók
     elem.style.position = "absolute"
     elem.style.left = `${widget.positionX}%`
     elem.style.top = `${widget.positionY}%`
@@ -58,12 +59,26 @@ export class SlideComponent implements OnInit, AfterViewInit, OnChanges {
     if (widget.type === "TextBox") {
       elem.classList.add("textbox")
       elem.textContent = widget.text || ""
+
+      // Betűméret
       const containerWidth = this.slideContainer.nativeElement.clientWidth
       elem.style.fontSize = `${this.calculateFontSize(widget.fontSize ?? 12, containerWidth)}px`
+
+      // Stílus
+      if (widget.bold) {
+        elem.style.fontWeight = "bold"
+      }
+      if (widget.italic) {
+        elem.style.fontStyle = "italic"
+      }
+      if (widget.textDecoration) {
+        elem.style.textDecoration = widget.textDecoration
+      }
     }
 
     return elem
   }
+
 
   renderSlide(): void {
     if (!this.slideContainer || !this.slideData) return

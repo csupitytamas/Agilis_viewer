@@ -1,0 +1,116 @@
+* {
+  user-select: none;
+}
+
+.black-bars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #aaa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slide-container {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: white;
+  box-shadow: 0 0 15px white;
+  transition: box-shadow 0.3s ease-in-out;
+  position: relative; /* A widgetek erre a konténerre lesznek pozicionálva */
+  overflow: hidden; /* Nem engedi, hogy kilógjanak */
+}
+
+.widget {
+  position: absolute; /* Ezzel lehetővé tesszük az egymásra helyezést */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  word-wrap: break-word;
+  border: 1px solid rgba(0, 0, 0, 0.1); /* Kis keret a widgetek körül */
+  background: rgba(255, 255, 255, 0.8); /* Enyhén átlátszó háttér */
+}
+
+.textbox {
+  white-space: pre-wrap;
+}
+
+.fullscreen-button {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: white;
+  border: 1px solid #555;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s, transform 0.2s, opacity 0.2s ease-in-out;
+  opacity: 0.5;
+}
+
+.next {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: white;
+  border: 1px solid #555;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s, transform 0.2s, opacity 0.2s ease-in-out;
+  opacity: 0.5;
+}
+
+@media (hover: hover) {
+  .fullscreen-button:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+/* ------------------------------ ANIMÁCIÓK ------------------------------ */
+/* Fade animáció */
+.fade-out {
+  animation: fadeOut 1s forwards;
+}
+
+.fade-in {
+  animation: fadeIn 1s forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+

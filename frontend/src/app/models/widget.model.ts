@@ -7,4 +7,7 @@ export interface Widget {
   type: string;
   text?: string;
   fontSize?: number;
+  bold?: boolean;
+  italic?: boolean;
+  textDecoration?: 'underline' | 'line-through';
 }

@@ -1,0 +1,14 @@
+<div class="black-bars">
+  <div #slideContainer class="slide-container">
+    <!-- Fehér háttér -->
+    <div class="slide-background"></div>
+
+    <!-- Widgetek konténer -->
+    <div class="widgets-container"></div>
+  </div>
+
+  <button class="fullscreen-button" (click)="toggleFullscreen()">
+    <i [class]="isFullscreen ? 'fa-solid fa-compress' : 'fa-solid fa-expand'"></i>
+  </button>
+  <button class="next" (click)="toggleWidgets()">Váltás</button>
+</div>
