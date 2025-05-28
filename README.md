@@ -10,7 +10,7 @@ A projektmunkában a gyakorlat résztvevői 4 külön agilis caapatba voltak osz
 
 Az agilis módszetanok szerint sprintekben dolgozva daily és retro meetingekkel. valóítottuk meg.
 
-Vezetettem a meetingeket, fenntartottam a kapcsolatot a Product Ownerrel valamint a többi csapat Scrum Masterével.
+Vezettem a meetingeket, fenntartottam a kapcsolatot a Product Ownerrel valamint a többi csapat Scrum Masterével.
 
 A projekt Angular Framework-kel készült, Gitlab platformon.
 
