@@ -8,7 +8,7 @@ https://dev.frontend.demosystems.hu
 
 A projektmunkában a gyakorlat résztvevői 4 külön agilis caapatba voltak osztva. Mint Scrum Master dolgoztam a Viewer csapatban, ami a vetítés megjelenítésért felelt.
 
-Az agilis módszetanok szerint sprintekben dolgozva daily és retro meetingekkel. valóítottuk meg.
+Az agilis módszetanok szerint sprintekben dolgozva daily és retro meetingekkel. valósítottuk meg.
 
 Vezettem a meetingeket, fenntartottam a kapcsolatot a Product Ownerrel valamint a többi csapat Scrum Masterével.
 
